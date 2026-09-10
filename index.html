@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>카드뉴스 에디터</title>
+<title>아이딜리 카드뉴스 편집기</title>
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
@@ -399,8 +399,8 @@
 
 <!-- ═══════════ 왼쪽 편집 패널 ═══════════ -->
 <aside id="panel">
-  <h1>카드뉴스 에디터</h1>
-  <p class="sub">1080 × 1350 · Pretendard 고정</p>
+  <h1>아이딜리 카드뉴스 편집기</h1>
+  <p class="sub">1080 × 1350</p>
 
   <div class="tabs">
     <button data-tab="first" class="active">첫장</button>
@@ -435,14 +435,14 @@
     </div>
     <div class="section">
       <label class="title">텍스트</label>
-      <div class="field"><span>소제목 (흰색 · 40px)</span>
-        <textarea data-target="first-sub" rows="2">문해력 위기에 교육부가 내놓은 해법</textarea></div>
-      <div class="field"><span>강조 문구 (포인트 컬러 · 95px)</span>
-        <textarea data-target="first-accent" rows="2">국어만 읽던 시대는 끝</textarea></div>
-      <div class="field"><span>메인 문구 1 (흰색 · 95px)</span>
-        <textarea data-target="first-main1" rows="2">모든 과목이</textarea></div>
-      <div class="field"><span>메인 문구 2 (흰색 · 95px)</span>
-        <textarea data-target="first-main2" rows="2">된다</textarea></div>
+      <div class="field"><span>소제목 (흰색)</span>
+        <textarea data-target="first-sub" rows="2">여름, 베이징 여행 후기</textarea></div>
+      <div class="field"><span>강조 문구 (포인트 컬러)</span>
+        <textarea data-target="first-accent" rows="2">중국 여행사</textarea></div>
+      <div class="field"><span>메인 문구 1 (흰색)</span>
+        <textarea data-target="first-main1" rows="2">꼭 먹어야 하는</textarea></div>
+      <div class="field"><span>메인 문구 2 (흰색)</span>
+        <textarea data-target="first-main2" rows="2">현지 음식 추천</textarea></div>
     </div>
   </div>
 
@@ -461,14 +461,17 @@
     </div>
     <div class="section">
       <label class="title">텍스트</label>
-      <div class="field"><span>계정 핸들 (우측 상단 · 30px)</span>
+      <div class="field"><span>계정 핸들 (우측 상단)</span>
         <input type="text" data-target="middle-handle" value="@yeonjeong.mkt"></div>
-      <div class="field"><span>강조 헤딩 (포인트 컬러 · 40px)</span>
-        <textarea data-target="middle-heading" rows="3">문해력 위기에 교육부가 내놓은 해법</textarea></div>
-      <div class="field"><span>본문 1 (흰색 · 38px)</span>
-        <textarea data-target="middle-body1" rows="3">문해력 위기에 교육부가 내놓은 해법</textarea></div>
-      <div class="field"><span>본문 2 (흰색 · 38px)</span>
-        <textarea data-target="middle-body2" rows="3">문해력 위기에 교육부가 내놓은 해법</textarea></div>
+      <div class="field"><span>강조 헤딩 (포인트 컬러)</span>
+        <textarea data-target="middle-heading" rows="3">CHAGEE, 한국에선 1시간 넘게 웨이팅!
+중국에선 NO!</textarea></div>
+      <div class="field"><span>본문 1 (흰색)</span>
+        <textarea data-target="middle-body1" rows="3">CHAGEE는 아시아 태평양을 넘어
+전 세계로 성장하는 글로벌 티 브랜드로,</textarea></div>
+      <div class="field"><span>본문 2 (흰색)</span>
+        <textarea data-target="middle-body2" rows="3">7000개 이상의 매장에서 차 문화를
+현대적으로 재해석하여 전하고 있습니다.</textarea></div>
     </div>
   </div>
 
@@ -487,11 +490,12 @@
     </div>
     <div class="section">
       <label class="title">텍스트</label>
-      <div class="field"><span>중앙 문구 (흰색 · 38px)</span>
-        <textarea data-target="last-center" rows="4">읽고 쓰는 삶으로 누구나
-자신의 이야기를
-펼칠 수 있도록 돕습니다</textarea></div>
-      <div class="field"><span>버튼 텍스트 (포인트 컬러 버튼 · 30px)</span>
+      <div class="field"><span>중앙 문구 (흰색)</span>
+        <textarea data-target="last-center" rows="5">카드 뉴스 만들기!
+무료로, 1분 만에 끝내고 싶다면?
+
+[무료 나눔!!!]</textarea></div>
+      <div class="field"><span>버튼 텍스트 (포인트 컬러 버튼)</span>
         <input type="text" data-target="last-pill" value="@yeonjeong.mkt"></div>
     </div>
   </div>
@@ -509,7 +513,7 @@
   </div>
 
   <button class="dl-btn" id="dlCurrent">현재 장 PNG 다운로드</button>
-  <button class="dl-all-btn" id="dlAll">전체 3장 다운로드</button>
+  <button class="dl-all-btn" id="dlAll">전체 3장 한 번에 다운로드 (ZIP)</button>
   <p id="status"></p>
 </aside>
 
@@ -521,10 +525,10 @@
     <div class="card visible" id="card-first">
       <div class="bg empty"></div>
       <div class="overlay"></div>
-      <div class="t-sub" id="first-sub" contenteditable="true">문해력 위기에 교육부가 내놓은 해법</div>
-      <div class="t-accent" id="first-accent" contenteditable="true">국어만 읽던 시대는 끝</div>
-      <div class="t-main1" id="first-main1" contenteditable="true">모든 과목이</div>
-      <div class="t-main2" id="first-main2" contenteditable="true">된다</div>
+      <div class="t-sub" id="first-sub" contenteditable="true">여름, 베이징 여행 후기</div>
+      <div class="t-accent" id="first-accent" contenteditable="true">중국 여행사</div>
+      <div class="t-main1" id="first-main1" contenteditable="true">꼭 먹어야 하는</div>
+      <div class="t-main2" id="first-main2" contenteditable="true">현지 음식 추천</div>
     </div>
 
     <!-- 중간장 -->
@@ -533,16 +537,16 @@
       <div class="overlay"></div>
       <div class="t-handle" id="middle-handle" contenteditable="true">@yeonjeong.mkt</div>
       <div class="deco-line"></div>
-      <div class="t-heading" id="middle-heading" contenteditable="true">문해력 위기에 교육부가 내놓은 해법</div>
-      <div class="t-body1" id="middle-body1" contenteditable="true">문해력 위기에 교육부가 내놓은 해법</div>
-      <div class="t-body2" id="middle-body2" contenteditable="true">문해력 위기에 교육부가 내놓은 해법</div>
+      <div class="t-heading" id="middle-heading" contenteditable="true">CHAGEE, 한국에선 1시간 넘게 웨이팅!<br>중국에선 NO!</div>
+      <div class="t-body1" id="middle-body1" contenteditable="true">CHAGEE는 아시아 태평양을 넘어<br>전 세계로 성장하는 글로벌 티 브랜드로,</div>
+      <div class="t-body2" id="middle-body2" contenteditable="true">7000개 이상의 매장에서 차 문화를<br>현대적으로 재해석하여 전하고 있습니다.</div>
     </div>
 
     <!-- 마지막장 -->
     <div class="card" id="card-last">
       <div class="bg empty"></div>
       <div class="overlay"></div>
-      <div class="t-center" id="last-center" contenteditable="true">읽고 쓰는 삶으로 누구나<br>자신의 이야기를<br>펼칠 수 있도록 돕습니다</div>
+      <div class="t-center" id="last-center" contenteditable="true">카드 뉴스 만들기!<br>무료로, 1분 만에 끝내고 싶다면?<br><br>[무료 나눔!!!]</div>
       <div class="pill"><span id="last-pill" contenteditable="true">@yeonjeong.mkt</span></div>
     </div>
 
@@ -925,12 +929,120 @@
     setTimeout(() => URL.revokeObjectURL(url), 5000);
   }
 
+  /* ══════════════════════════════════════════════════════════════
+     여러 장을 ZIP 한 개로 묶기 (외부 라이브러리 없음)
+
+     이전 문제
+       '전체 3장' 을 눌러도 a.click() 을 3번 호출하는 방식이라
+       브라우저가 "여러 파일 다운로드" 를 매번 되물어서
+       사실상 저장을 3번 눌러야 했다.
+
+     수정
+       PNG 3장을 무압축(store) ZIP 한 개로 만들어 한 번만 저장한다.
+       PNG 는 이미 압축돼 있어 store 로 담아도 용량 손해가 없다.
+     ══════════════════════════════════════════════════════════════ */
+  const CRC_TABLE = (() => {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+  function crc32(bytes) {
+    let c = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+  function dosStamp(d) {
+    return {
+      time: ((d.getHours() & 31) << 11) | ((d.getMinutes() & 63) << 5) | ((d.getSeconds() >> 1) & 31),
+      date: (((d.getFullYear() - 1980) & 127) << 9) | (((d.getMonth() + 1) & 15) << 5) | (d.getDate() & 31)
+    };
+  }
+  /* entries: [{ name, bytes }] → ZIP Blob */
+  function buildZip(entries) {
+    const enc = new TextEncoder();
+    const { time, date } = dosStamp(new Date());
+    const parts = [];
+    const central = [];
+    let offset = 0;
+
+    entries.forEach(e => {
+      const nameBytes = enc.encode(e.name);
+      const crc = crc32(e.bytes);
+      const size = e.bytes.length;
+
+      const lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true);
+      lh.setUint16(4, 20, true);       // version needed
+      lh.setUint16(6, 0x0800, true);   // 파일명 UTF-8 플래그 (한글 이름 대응)
+      lh.setUint16(8, 0, true);        // 0 = store (무압축)
+      lh.setUint16(10, time, true);
+      lh.setUint16(12, date, true);
+      lh.setUint32(14, crc, true);
+      lh.setUint32(18, size, true);    // compressed size
+      lh.setUint32(22, size, true);    // uncompressed size
+      lh.setUint16(26, nameBytes.length, true);
+      lh.setUint16(28, 0, true);       // extra length
+      parts.push(new Uint8Array(lh.buffer), nameBytes, e.bytes);
+
+      const ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true);
+      ch.setUint16(4, 20, true);       // version made by
+      ch.setUint16(6, 20, true);       // version needed
+      ch.setUint16(8, 0x0800, true);
+      ch.setUint16(10, 0, true);
+      ch.setUint16(12, time, true);
+      ch.setUint16(14, date, true);
+      ch.setUint32(16, crc, true);
+      ch.setUint32(20, size, true);
+      ch.setUint32(24, size, true);
+      ch.setUint16(28, nameBytes.length, true);
+      ch.setUint16(30, 0, true);       // extra length
+      ch.setUint16(32, 0, true);       // comment length
+      ch.setUint16(34, 0, true);       // disk number start
+      ch.setUint16(36, 0, true);       // internal attrs
+      ch.setUint32(38, 0, true);       // external attrs
+      ch.setUint32(42, offset, true);  // local header offset
+      central.push(new Uint8Array(ch.buffer), nameBytes);
+
+      offset += 30 + nameBytes.length + size;
+    });
+
+    const centralSize = central.reduce((n, a) => n + a.length, 0);
+    const eocd = new DataView(new ArrayBuffer(22));
+    eocd.setUint32(0, 0x06054b50, true);
+    eocd.setUint16(4, 0, true);
+    eocd.setUint16(6, 0, true);
+    eocd.setUint16(8, entries.length, true);
+    eocd.setUint16(10, entries.length, true);
+    eocd.setUint32(12, centralSize, true);
+    eocd.setUint32(16, offset, true);
+    eocd.setUint16(20, 0, true);
+
+    return new Blob(parts.concat(central, [new Uint8Array(eocd.buffer)]),
+                    { type: 'application/zip' });
+  }
+  function blobToBytes(blob) {
+    if (blob.arrayBuffer) return blob.arrayBuffer().then(b => new Uint8Array(b));
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(new Uint8Array(fr.result));
+      fr.onerror = () => reject(fr.error || new Error('파일 읽기 실패'));
+      fr.readAsArrayBuffer(blob);
+    });
+  }
+
   const NAMES = { first: '01_첫장', middle: '02_중간장', last: '03_마지막장' };
-  async function downloadCard(card, mult) {
+  async function renderToFile(card, mult) {
     const canvas = await renderCard(card, mult);
-    saveBlob(await canvasToBlob(canvas),
-             '카드뉴스_' + NAMES[card] + '_' + canvas.width + 'x' + canvas.height + '.png');
-    return canvas;
+    const blob = await canvasToBlob(canvas);
+    return {
+      blob, canvas,
+      filename: '카드뉴스_' + NAMES[card] + '_' + canvas.width + 'x' + canvas.height + '.png'
+    };
   }
 
   let busy = false;
@@ -942,13 +1054,26 @@
     const mult = parseInt(sizeSel.value, 10) || 1;
     try {
       setStatus('폰트 준비 중…');
-      let last = null;
+      const files = [];
       for (let i = 0; i < cards.length; i++) {
         setStatus('내보내는 중… (' + (i + 1) + '/' + cards.length + ')');
-        last = await downloadCard(cards[i], mult);
-        if (i < cards.length - 1) await new Promise(r => setTimeout(r, 700));
+        files.push(await renderToFile(cards[i], mult));
       }
-      if (!fontWarned) setStatus('저장 완료 · ' + last.width + ' × ' + last.height + ' PNG', 'ok');
+      const last = files[files.length - 1].canvas;
+
+      if (files.length === 1) {
+        saveBlob(files[0].blob, files[0].filename);
+        if (!fontWarned) setStatus('저장 완료 · ' + last.width + ' × ' + last.height + ' PNG', 'ok');
+      } else {
+        setStatus('ZIP 으로 묶는 중…');
+        const entries = [];
+        for (const f of files) entries.push({ name: f.filename, bytes: await blobToBytes(f.blob) });
+        saveBlob(buildZip(entries),
+                 '카드뉴스_전체' + files.length + '장_' + last.width + 'x' + last.height + '.zip');
+        if (!fontWarned) {
+          setStatus('저장 완료 · ZIP 1개에 ' + files.length + '장 (' + last.width + ' × ' + last.height + ')', 'ok');
+        }
+      }
     } catch (e) {
       console.error(e);
       setStatus('저장 실패: ' + (e && e.message ? e.message : e), 'err');
@@ -965,7 +1090,7 @@
   window.addEventListener('load', () => { getFaceList().catch(() => {}); });
 
   /* 검증/디버그용 훅 */
-  window.__cardExport = { renderCard, renderViaSVG, renderViaHtml2Canvas, buildFontCSS, makeExportClone };
+  window.__cardExport = { renderCard, renderViaSVG, renderViaHtml2Canvas, buildFontCSS, makeExportClone, buildZip, crc32 };
 </script>
 </body>
 </html>
