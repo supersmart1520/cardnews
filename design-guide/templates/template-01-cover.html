@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>카드뉴스 템플릿 · 표지형</title>
+<link rel="stylesheet" href="frame.css">
+<style>
+  /* ---- 표지형 전용 ---- */
+  .cover .content{ padding:70px 80px; display:flex; flex-direction:column; }
+  .logo-slot{ position:absolute; top:60px; right:96px; text-align:right;
+    font-family:'Gothic A1'; font-weight:800; color:#888; font-size:24px; line-height:1.3; }
+  .logo-chip{ display:inline-block; border:3px dashed #bbb; border-radius:10px;
+    padding:10px 16px; color:#aaa; font-size:22px; }
+  .hero{ margin-top:150px; }
+  .hero .line{ margin:14px 0; }
+  .t-hero{ font-size:112px; }
+  .caret-tag{ font-size:92px; }
+  .sub-line{ margin-top:26px; }
+  .hook-wrap{ margin-top:60px; }
+</style>
+</head>
+<body>
+<div class="card cover">
+  <div class="window">
+    <div class="titlebar">
+      <span class="label">cardnews.exe</span>
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <div class="viewport">
+      <div class="content">
+
+        <!-- 로고/출처 슬롯 -->
+        <div class="logo-slot">
+          <span class="logo-chip">로고 / 기관명 자리</span>
+        </div>
+
+        <!-- 장식: 상단 픽셀 트레일 -->
+        <svg class="deco" style="top:150px; right:120px;" width="150" height="70" viewBox="0 0 150 70">
+          <g fill="#0355FD">
+            <rect x="0" y="40" width="16" height="16"/><rect x="24" y="40" width="16" height="16" opacity=".5"/>
+            <rect x="24" y="16" width="16" height="16"/><rect x="48" y="16" width="16" height="16"/>
+            <rect x="48" y="40" width="16" height="16" opacity=".5"/><rect x="72" y="0" width="16" height="16"/>
+            <rect x="96" y="0" width="16" height="16" opacity=".5"/>
+          </g>
+        </svg>
+
+        <!-- 메인 타이틀 -->
+        <div class="hero">
+          <div class="line">
+            <span class="display t-hero c-blue">메인</span>
+            <span class="display t-hero">키워드</span>
+          </div>
+          <div class="line">
+            <span class="k-box caret display caret-tag">핵심 문구 자리</span>
+            <span class="display t-hero">도</span>
+          </div>
+          <div class="line sub-line">
+            <span class="display t-hero">여기에 있어요!</span>
+          </div>
+        </div>
+
+        <!-- 서브 카피 (↳ 훅) -->
+        <div class="hook-wrap">
+          <span class="hook">↳ 부제/소주제가 들어갈 자리</span>
+        </div>
+
+        <!-- 장식: 스파클 -->
+        <svg class="deco" style="top:470px; left:70px;" width="46" height="46" viewBox="0 0 24 24">
+          <path d="M12 0C13 7 17 11 24 12C17 13 13 17 12 24C11 17 7 13 0 12C7 11 11 7 12 0Z" fill="#0355FD"/></svg>
+        <svg class="deco" style="top:560px; right:150px;" width="34" height="34" viewBox="0 0 24 24">
+          <path d="M12 0C13 7 17 11 24 12C17 13 13 17 12 24C11 17 7 13 0 12C7 11 11 7 12 0Z" fill="#0355FD"/></svg>
+
+        <!-- 장식: 2진수 -->
+        <div class="deco binary" style="bottom:300px; left:78px;">01001<br>10110</div>
+
+        <!-- 장식: 하단 픽셀 트레일 -->
+        <svg class="deco" style="bottom:190px; left:70px;" width="260" height="40" viewBox="0 0 260 40">
+          <g fill="#0355FD">
+            <rect x="0" y="12" width="16" height="16"/><rect x="24" y="12" width="16" height="16"/>
+            <rect x="48" y="12" width="16" height="16" opacity=".45"/><rect x="88" y="12" width="16" height="16"/>
+            <rect x="112" y="12" width="16" height="16" opacity=".45"/><rect x="152" y="12" width="16" height="16"/>
+            <rect x="200" y="12" width="16" height="16" opacity=".45"/><rect x="224" y="12" width="16" height="16"/>
+          </g>
+        </svg>
+
+        <!-- 장식: 레트로 커서 -->
+        <svg class="deco" style="bottom:90px; right:40px;" width="128" height="150" viewBox="0 0 32 40">
+          <path d="M4 2 L4 31 L12 23 L17 35 L22 33 L17 21 L27 21 Z"
+            fill="#0355FD" stroke="#1A1A1A" stroke-width="2" stroke-linejoin="round"/></svg>
+
+      </div>
+      <div class="scrollbar">
+        <div class="sb-arrow">▲</div>
+        <div class="sb-thumb"></div>
+        <div class="sb-arrow bottom">▼</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

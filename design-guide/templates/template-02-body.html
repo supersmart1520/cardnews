@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>카드뉴스 템플릿 · 본문형</title>
+<link rel="stylesheet" href="frame.css">
+<style>
+  /* ---- 본문/도입형 전용 ---- */
+  .body .content{ padding:96px 86px; display:flex; flex-direction:column; }
+  .intro{ font-size:38px; line-height:1.6; font-weight:700; color:#333; }
+  .mid{ margin-top:70px; font-size:44px; line-height:1.55; font-weight:800; }
+  .punch{ margin-top:auto; padding-top:60px; }
+  .punch .display{ font-size:84px; line-height:1.24; }
+</style>
+</head>
+<body>
+<div class="card body">
+  <div class="window">
+    <div class="titlebar">
+      <span class="label">cardnews.exe</span>
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <div class="viewport">
+      <div class="content">
+
+        <!-- 도입 문단 (일반 설명) -->
+        <p class="intro">
+          배경·상황을 설명하는 도입 문장이<br>
+          들어갈 자리입니다. 두세 줄 분량으로<br>
+          주제를 자연스럽게 열어 주세요.
+        </p>
+
+        <!-- 장식: 스파클 -->
+        <svg class="deco" style="top:150px; right:110px;" width="40" height="40" viewBox="0 0 24 24">
+          <path d="M12 0C13 7 17 11 24 12C17 13 13 17 12 24C11 17 7 13 0 12C7 11 11 7 12 0Z" fill="#0355FD"/></svg>
+
+        <!-- 중간: 강조 포인트가 섞인 설명 -->
+        <p class="mid">
+          <svg style="vertical-align:-6px;margin-right:8px" width="34" height="34" viewBox="0 0 24 24">
+            <path d="M12 0C13 7 17 11 24 12C17 13 13 17 12 24C11 17 7 13 0 12C7 11 11 7 12 0Z" fill="#0355FD"/></svg>
+          강조하고 싶은 문장에서<br>
+          <span class="c-blue">핵심 키워드</span>와 <span class="u-blue">중요 어구</span>를<br>
+          이렇게 파란색으로 짚어 주세요.
+        </p>
+
+        <!-- 장식: 가운데 픽셀 묶음 -->
+        <svg class="deco" style="top:640px; left:90px;" width="130" height="50" viewBox="0 0 130 50">
+          <g fill="#0355FD">
+            <rect x="0" y="18" width="14" height="14"/><rect x="20" y="18" width="14" height="14" opacity=".45"/>
+            <rect x="20" y="0" width="14" height="14"/><rect x="40" y="0" width="14" height="14" opacity=".45"/>
+            <rect x="40" y="34" width="14" height="14"/><rect x="60" y="34" width="14" height="14"/>
+          </g>
+        </svg>
+
+        <!-- 하단 펀치라인 (큰 결론 한 줄) -->
+        <div class="punch">
+          <div class="display">결론이 되는 한 문장을</div>
+          <div class="display">크게 <span class="c-blue">강조</span>하는 자리!</div>
+        </div>
+
+        <!-- 장식: 우측 중단 스파클 (펀치라인과 겹치지 않는 여백) -->
+        <svg class="deco" style="top:760px; right:110px;" width="30" height="30" viewBox="0 0 24 24">
+          <path d="M12 0C13 7 17 11 24 12C17 13 13 17 12 24C11 17 7 13 0 12C7 11 11 7 12 0Z" fill="#0355FD"/></svg>
+
+      </div>
+      <div class="scrollbar">
+        <div class="sb-arrow">▲</div>
+        <div class="sb-thumb"></div>
+        <div class="sb-arrow bottom">▼</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

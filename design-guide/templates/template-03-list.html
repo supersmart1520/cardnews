@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>카드뉴스 템플릿 · 리스트형</title>
+<link rel="stylesheet" href="frame.css">
+<style>
+  /* ---- 리스트/핵심정보형 전용 ---- */
+  .list .content{ padding:70px 76px; display:flex; flex-direction:column; }
+  .head-pill{ display:flex; justify-content:center; margin-bottom:20px; }
+  .items{ margin-top:30px; display:flex; flex-direction:column; gap:48px; }
+  .item{ display:grid; grid-template-columns:100px 1fr; column-gap:28px; align-items:start; }
+  .item .ic{ width:100px; height:100px; border:5px solid var(--ink); border-radius:16px;
+    background:var(--panel-soft); display:flex; align-items:center; justify-content:center;
+    font-family:'Do Hyeon'; font-size:24px; color:#999; text-align:center; line-height:1.1; }
+  .item .body-txt .num{ display:block; margin-bottom:6px; }
+  .item .ttl{ font-family:'Do Hyeon'; font-size:46px; line-height:1.2; }
+  .item .desc{ font-size:32px; line-height:1.5; font-weight:500; color:#333; margin-top:10px; }
+</style>
+</head>
+<body>
+<div class="card list">
+  <div class="window">
+    <div class="titlebar">
+      <span class="label">cardnews.exe</span>
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <div class="viewport">
+      <div class="content">
+
+        <!-- 상단 검정 알약 질문/라벨 -->
+        <div class="head-pill">
+          <span class="pill">이 카드의 질문 / 소제목 자리</span>
+        </div>
+
+        <!-- 장식: 스파클 -->
+        <svg class="deco" style="top:170px; right:120px;" width="36" height="36" viewBox="0 0 24 24">
+          <path d="M12 0C13 7 17 11 24 12C17 13 13 17 12 24C11 17 7 13 0 12C7 11 11 7 12 0Z" fill="#0355FD"/></svg>
+
+        <div class="items">
+
+          <!-- 항목 01 -->
+          <div class="item">
+            <div class="ic">아이콘<br>자리</div>
+            <div class="body-txt">
+              <span class="num">01</span>
+              <div class="ttl"><span class="c-blue">첫 번째</span> 항목 제목</div>
+              <div class="desc">항목을 설명하는 본문이 들어갑니다. 한두 줄로 간결하게 작성해 주세요.</div>
+            </div>
+          </div>
+
+          <!-- 항목 02 -->
+          <div class="item">
+            <div class="ic">아이콘<br>자리</div>
+            <div class="body-txt">
+              <span class="num">02</span>
+              <div class="ttl"><span class="c-blue">두 번째</span> 항목 제목</div>
+              <div class="desc">같은 형식으로 핵심 포인트를 정리합니다. <span class="u-blue">중요 어구</span>는 강조.</div>
+            </div>
+          </div>
+
+          <!-- 항목 03 -->
+          <div class="item">
+            <div class="ic">아이콘<br>자리</div>
+            <div class="body-txt">
+              <span class="num">03</span>
+              <div class="ttl"><span class="c-blue">세 번째</span> 항목 제목</div>
+              <div class="desc">항목은 2~4개까지 자유롭게 늘리거나 줄일 수 있습니다.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 장식: 2진수 + 픽셀 -->
+        <div class="deco binary" style="bottom:150px; right:70px;">10101<br>01011</div>
+        <svg class="deco" style="bottom:90px; left:76px;" width="190" height="36" viewBox="0 0 190 36">
+          <g fill="#0355FD">
+            <rect x="0" y="10" width="14" height="14"/><rect x="24" y="10" width="14" height="14" opacity=".45"/>
+            <rect x="60" y="10" width="14" height="14"/><rect x="84" y="10" width="14" height="14" opacity=".45"/>
+            <rect x="120" y="10" width="14" height="14"/><rect x="156" y="10" width="14" height="14" opacity=".45"/>
+          </g>
+        </svg>
+
+      </div>
+      <div class="scrollbar">
+        <div class="sb-arrow">▲</div>
+        <div class="sb-thumb"></div>
+        <div class="sb-arrow bottom">▼</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

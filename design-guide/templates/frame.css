@@ -1,0 +1,148 @@
+/* ============================================================
+   RETRO BROWSER CARD NEWS — 공통 프레임 스타일 (라이트 테마)
+   캔버스: 1080 x 1350px  /  팔레트: 코발트블루 + 흰 + 블랙
+   폰트: Black Han Sans(디스플레이) / Do Hyeon / Jua / Gothic A1(본문)
+   ============================================================ */
+
+/* 우선 Pretendard(사용자 환경에서 로드 시도) → 실패 시 Gothic A1 */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gothic+A1:wght@400;500;700;800;900&display=swap');
+
+:root{
+  --blue:        #0355FD;   /* 메인 코발트 블루 */
+  --blue-deep:   #0033B8;   /* 깊은 블루 (그림자/보조) */
+  --blue-soft:   #E6EEFF;   /* 연한 블루 배경 */
+  --ink:         #1A1A1A;   /* 텍스트/테두리 블랙 */
+  --paper:       #FFFFFF;   /* 카드 배경 흰색 */
+  --panel:       #E5E5E5;   /* 타이틀바/회색 박스 */
+  --panel-soft:  #F2F2F2;   /* 연회색 콘텐츠 박스 */
+  --line:        #1A1A1A;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html,body{ background:#d9d9d9; }
+
+/* ---------- 카드 (1080x1350, 바깥 블루 프레임) ---------- */
+.card{
+  position:relative;
+  width:1080px;
+  height:1350px;
+  background:var(--paper);
+  border:16px solid var(--blue);
+  padding:30px 48px 48px 30px;   /* 오른쪽/아래 여백은 창 그림자 자리 */
+  font-family:'Pretendard','Gothic A1',sans-serif;
+  color:var(--ink);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- 레트로 브라우저 창 ---------- */
+.window{
+  position:relative;
+  width:100%;
+  height:100%;
+  background:var(--paper);
+  border:5px solid var(--ink);
+  box-shadow:16px 16px 0 var(--ink);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* 타이틀바 + 점 3개 */
+.titlebar{
+  flex:0 0 auto;
+  height:58px;
+  background:var(--panel);
+  border-bottom:5px solid var(--ink);
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  padding:0 24px;
+  gap:14px;
+}
+.titlebar .label{
+  margin-right:auto;
+  font-family:'Gothic A1'; font-weight:700;
+  font-size:22px; letter-spacing:.02em; color:#6a6a6a;
+}
+.dot{ width:20px; height:20px; border-radius:50%;
+  border:3px solid var(--ink); background:var(--paper); }
+
+/* 창 본문 + 우측 스크롤바 */
+.viewport{ position:relative; flex:1 1 auto; display:flex; min-height:0; }
+.content{ position:relative; flex:1 1 auto; padding:64px 72px; min-width:0; }
+
+.scrollbar{
+  flex:0 0 36px; width:36px;
+  border-left:5px solid var(--ink);
+  background:var(--panel);
+  display:flex; flex-direction:column; align-items:center;
+}
+.scrollbar .sb-arrow{ width:100%; height:34px; display:flex; align-items:center; justify-content:center;
+  border-bottom:4px solid var(--ink); font-size:14px; color:var(--ink); }
+.scrollbar .sb-arrow.bottom{ border-bottom:none; border-top:4px solid var(--ink); margin-top:auto; }
+.scrollbar .sb-thumb{ width:20px; height:150px; margin:22px 0; background:var(--ink); border-radius:2px; }
+
+/* ============================================================
+   타이포그래피 스케일 (본문 최소 28px 가드레일)
+   ============================================================ */
+.display{ font-family:'Black Han Sans','Gothic A1',sans-serif; font-weight:400;
+  letter-spacing:-.01em; line-height:1.12; }
+.round  { font-family:'Jua','Gothic A1',sans-serif; }
+.sub    { font-family:'Do Hyeon','Gothic A1',sans-serif; }
+
+.t-hero  { font-size:108px; }                 /* 표지 메인 */
+.t-h1    { font-size:76px;  line-height:1.2; } /* 큰 헤드라인 */
+.t-h2    { font-size:58px;  line-height:1.28;} /* 중제목 */
+.t-lead  { font-size:40px;  line-height:1.5; font-weight:700; } /* 리드 본문 */
+.t-body  { font-size:34px;  line-height:1.56; font-weight:500; } /* 본문 (>=28) */
+.t-cap   { font-size:28px;  line-height:1.5;  font-weight:500; color:#555; } /* 캡션 */
+
+/* ============================================================
+   강조 요소
+   ============================================================ */
+/* 파란 박스 (흰 글씨) */
+.k-blue{ display:inline-block; background:var(--blue); color:#fff;
+  padding:.04em .30em; border-radius:8px; font-weight:800;
+  box-shadow:5px 5px 0 var(--blue-deep); }
+/* 흰 박스 (파란 테두리, 검정 글씨) + 드롭다운 삼각형 */
+.k-box{ display:inline-block; position:relative; background:#fff; color:var(--ink);
+  border:5px solid var(--blue); padding:.02em .34em; border-radius:10px;
+  font-weight:800; }
+.k-box.caret::after{ content:"▾"; color:var(--blue); font-size:.7em;
+  margin-left:.18em; vertical-align:.08em; }
+/* 파란 밑줄 하이라이트 */
+.u-blue{ background:linear-gradient(transparent 62%, rgba(3,85,253,.28) 0);
+  padding:0 .04em; font-weight:800; }
+.c-blue{ color:var(--blue); font-weight:800; }
+/* 검정 알약 라벨 */
+.pill{ display:inline-flex; align-items:center; gap:.4em;
+  background:var(--ink); color:#fff; border-radius:999px;
+  padding:.34em 1.1em; font-family:'Do Hyeon'; font-size:30px; }
+/* 회색 콘텐츠 박스 */
+.graybox{ background:var(--panel-soft); border-radius:14px; padding:34px 38px; }
+
+/* 리스트 번호 */
+.num{ font-family:'Black Han Sans'; color:var(--blue); font-size:46px; line-height:1; }
+
+/* 손글씨 화살표 안내 (↳) */
+.hook{ font-family:'Do Hyeon'; font-size:34px; color:var(--blue); }
+
+/* 점선 구분선 */
+.dotline{ border:none; border-top:5px dotted var(--blue); margin:28px 0; }
+
+/* ============================================================
+   장식 요소 (픽셀블록 / 스파클 / 커서 / 2진수)
+   ============================================================ */
+.deco{ position:absolute; pointer-events:none; }
+
+/* 픽셀 블록 한 칸 + 계단형 묶음 */
+.px{ display:inline-block; width:16px; height:16px; background:var(--blue); }
+.pxrow{ display:flex; gap:6px; }
+.pxrow .px.o{ opacity:.45; }
+
+/* 2진수 디테일 */
+.binary{ font-family:'Gothic A1'; font-weight:800; font-size:20px;
+  letter-spacing:.14em; color:var(--blue); opacity:.8; line-height:1.15; }

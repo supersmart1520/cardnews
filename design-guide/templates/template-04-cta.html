@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>카드뉴스 템플릿 · 비교·마무리 CTA형</title>
+<link rel="stylesheet" href="frame.css">
+<style>
+  /* ---- 비교·마무리 CTA형 전용 ---- */
+  .cta .content{ padding:68px 76px; display:flex; flex-direction:column; }
+  .cta .head-pill{ display:flex; justify-content:center; margin-bottom:46px; }
+  .vs{ display:grid; grid-template-columns:1fr 128px 1fr; align-items:center; column-gap:10px; }
+  .vs .side{ text-align:center; }
+  .vs .side .sub{ font-size:52px; line-height:1.24; }
+  .vs .side .c-blue{ display:block; }
+  .vs-badge{ width:128px; height:128px; border-radius:50%; margin:0 auto;
+    background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center;
+    font-family:'Black Han Sans'; font-size:52px; box-shadow:7px 7px 0 var(--blue-deep); }
+  .closing{ margin-top:auto; }
+  .lead-line{ font-size:36px; font-weight:800; margin-bottom:26px; }
+  .graybox .msg{ font-size:33px; line-height:1.6; font-weight:500; color:#333; }
+</style>
+</head>
+<body>
+<div class="card cta">
+  <div class="window">
+    <div class="titlebar">
+      <span class="label">cardnews.exe</span>
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <div class="viewport">
+      <div class="content">
+
+        <!-- 상단 질문 라벨 -->
+        <div class="head-pill">
+          <span class="pill">마무리 질문 / 핵심 메시지 자리</span>
+        </div>
+
+        <!-- VS 비교 -->
+        <div class="vs">
+          <div class="side">
+            <div class="sub"><span class="c-blue">개념 A</span>의<br>관점 자리</div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="side">
+            <div class="sub"><span class="c-blue">개념 B</span>의<br>관점 자리</div>
+          </div>
+        </div>
+
+        <!-- 장식: 스파클 + 픽셀 -->
+        <svg class="deco" style="top:300px; left:90px;" width="40" height="40" viewBox="0 0 24 24">
+          <path d="M12 0C13 7 17 11 24 12C17 13 13 17 12 24C11 17 7 13 0 12C7 11 11 7 12 0Z" fill="#0355FD"/></svg>
+        <svg class="deco" style="top:360px; right:96px;" width="30" height="30" viewBox="0 0 24 24">
+          <path d="M12 0C13 7 17 11 24 12C17 13 13 17 12 24C11 17 7 13 0 12C7 11 11 7 12 0Z" fill="#0355FD"/></svg>
+
+        <hr class="dotline" style="margin-top:70px">
+
+        <!-- 마무리 메시지 (회색 박스) -->
+        <div class="closing">
+          <div class="lead-line c-blue">▸ 핵심 요약 한 줄이 들어갈 자리</div>
+          <div class="graybox">
+            <p class="msg">
+              마무리 메시지·전망·행동 유도(CTA)가 들어가는 자리입니다.
+              독자가 기억하거나 실천했으면 하는 내용을 두세 줄로 정리해 주세요.
+              <span class="c-blue">기대 효과</span>로 따뜻하게 마무리하면 좋습니다.
+            </p>
+          </div>
+        </div>
+
+        <!-- 장식: 하단 픽셀 트레일 + 2진수 -->
+        <svg class="deco" style="bottom:70px; left:76px;" width="200" height="34" viewBox="0 0 200 34">
+          <g fill="#0355FD">
+            <rect x="0" y="9" width="14" height="14"/><rect x="24" y="9" width="14" height="14" opacity=".45"/>
+            <rect x="60" y="9" width="14" height="14"/><rect x="96" y="9" width="14" height="14" opacity=".45"/>
+            <rect x="132" y="9" width="14" height="14"/><rect x="168" y="9" width="14" height="14" opacity=".45"/>
+          </g>
+        </svg>
+        <div class="deco binary" style="bottom:60px; right:66px;">01010</div>
+
+      </div>
+      <div class="scrollbar">
+        <div class="sb-arrow">▲</div>
+        <div class="sb-thumb"></div>
+        <div class="sb-arrow bottom">▼</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

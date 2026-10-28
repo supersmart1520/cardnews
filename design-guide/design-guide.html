@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>레트로 브라우저 카드뉴스 · 디자인 가이드</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gothic+A1:wght@400;500;700;800;900&display=swap');
+:root{
+  --blue:#0355FD; --blue-deep:#0033B8; --blue-soft:#E6EEFF;
+  --ink:#1A1A1A; --paper:#FFFFFF; --panel:#E5E5E5; --panel-soft:#F2F2F2;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Gothic A1','Pretendard',sans-serif;color:var(--ink);background:#eef1f5;line-height:1.6;}
+.wrap{max-width:1040px;margin:0 auto;padding:60px 28px 120px;}
+header{border:4px solid var(--ink);background:#fff;box-shadow:12px 12px 0 var(--blue);padding:40px 44px;margin-bottom:56px;position:relative;overflow:hidden;}
+header .bar{display:flex;justify-content:flex-end;gap:10px;margin-bottom:18px;}
+header .dot{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);}
+header h1{font-family:'Black Han Sans';font-size:48px;line-height:1.15;letter-spacing:-.01em;}
+header h1 span{color:var(--blue);}
+header p{font-size:18px;color:#555;margin-top:12px;font-weight:500;}
+section{margin-bottom:64px;}
+h2{font-family:'Do Hyeon';font-size:30px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+h2::before{content:"";width:18px;height:18px;background:var(--blue);display:inline-block;}
+.sub{color:#666;font-size:16px;margin-bottom:24px;font-weight:500;}
+.card-panel{border:3px solid var(--ink);background:#fff;border-radius:14px;padding:30px 32px;}
+
+/* 팔레트 */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
+.sw{border:3px solid var(--ink);border-radius:12px;overflow:hidden;background:#fff;}
+.sw .chip{height:92px;}
+.sw .meta{padding:12px 14px;}
+.sw .name{font-weight:800;font-size:16px;}
+.sw .hex{font-family:monospace;font-size:15px;color:#555;margin-top:2px;}
+.sw .role{font-size:13px;color:#888;margin-top:4px;line-height:1.35;}
+
+/* 타이포 */
+.typ{display:flex;flex-direction:column;gap:18px;}
+.typ .row{display:flex;align-items:baseline;gap:20px;border-bottom:1px dashed #ccc;padding-bottom:16px;flex-wrap:wrap;}
+.typ .tag{flex:0 0 190px;font-size:14px;color:#777;font-weight:700;font-family:monospace;}
+.d-hero{font-family:'Black Han Sans';font-size:54px;}
+.d-h1{font-family:'Black Han Sans';font-size:40px;}
+.d-h2{font-family:'Do Hyeon';font-size:32px;}
+.d-lead{font-family:'Gothic A1';font-weight:800;font-size:24px;}
+.d-body{font-family:'Gothic A1';font-weight:500;font-size:20px;}
+.d-cap{font-family:'Gothic A1';font-weight:500;font-size:16px;color:#777;}
+.font-note{display:inline-block;background:var(--blue-soft);color:var(--blue-deep);font-weight:800;font-size:13px;padding:2px 10px;border-radius:999px;margin-left:8px;}
+
+/* 프레임 설명 */
+.frame-demo{display:grid;grid-template-columns:260px 1fr;gap:28px;align-items:start;}
+.mini{border:12px solid var(--blue);background:#fff;}
+.mini .mwin{border:3px solid var(--ink);box-shadow:8px 8px 0 var(--ink);margin:10px 12px 14px 10px;display:flex;flex-direction:column;height:260px;}
+.mini .mtb{height:30px;background:var(--panel);border-bottom:3px solid var(--ink);display:flex;align-items:center;justify-content:flex-end;gap:7px;padding:0 10px;}
+.mini .mtb i{width:10px;height:10px;border-radius:50%;border:2px solid var(--ink);display:block;}
+.mini .mvp{flex:1;display:flex;}
+.mini .mco{flex:1;position:relative;}
+.mini .msb{width:16px;border-left:3px solid var(--ink);background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:space-between;font-size:8px;padding:3px 0;}
+.mini .msb .th{width:8px;height:60px;background:var(--ink);}
+ul.notes{list-style:none;display:flex;flex-direction:column;gap:10px;}
+ul.notes li{padding-left:28px;position:relative;font-size:17px;font-weight:500;}
+ul.notes li::before{content:"";position:absolute;left:0;top:7px;width:14px;height:14px;background:var(--blue);}
+ul.notes b{color:var(--blue-deep);}
+
+/* 장식 */
+.deco-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
+.deco-card{border:3px solid var(--ink);border-radius:12px;padding:22px;text-align:center;background:#fff;}
+.deco-card .viz{height:90px;display:flex;align-items:center;justify-content:center;}
+.deco-card .nm{font-family:'Do Hyeon';font-size:19px;margin-top:6px;}
+.deco-card .ds{font-size:14px;color:#777;margin-top:4px;}
+
+/* 강조 데모 */
+.emph{display:flex;flex-wrap:wrap;gap:14px;align-items:center;}
+.k-blue{display:inline-block;background:var(--blue);color:#fff;padding:4px 12px;border-radius:8px;font-weight:800;box-shadow:4px 4px 0 var(--blue-deep);}
+.k-box{display:inline-block;background:#fff;border:4px solid var(--blue);padding:3px 12px;border-radius:9px;font-weight:800;}
+.u-blue{background:linear-gradient(transparent 60%,rgba(3,85,253,.28) 0);padding:0 3px;font-weight:800;}
+.c-blue{color:var(--blue);font-weight:800;}
+.pill{display:inline-block;background:var(--ink);color:#fff;border-radius:999px;padding:6px 18px;font-family:'Do Hyeon';}
+
+/* 레이아웃 6종 */
+.layouts{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;}
+.lay{border:3px solid var(--ink);border-radius:14px;overflow:hidden;background:#fff;}
+.lay .top{background:var(--blue);color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;}
+.lay .top .n{font-family:'Black Han Sans';font-size:22px;}
+.lay .top .role{font-family:'Do Hyeon';font-size:15px;opacity:.9;}
+.lay .mock{height:190px;background:var(--panel-soft);position:relative;padding:16px;}
+.lay .body-txt{padding:16px 18px;font-size:15px;color:#444;font-weight:500;}
+.lay .body-txt b{color:var(--blue-deep);}
+/* mock blocks */
+.mb{background:#cfd6e0;border-radius:4px;}
+.mline{height:11px;background:#cdd4de;border-radius:3px;margin:7px 0;}
+.mline.s{width:55%;} .mline.m{width:78%;} .mline.blue{background:var(--blue);}
+.mtitle{height:26px;width:70%;background:#9fb2cf;border-radius:4px;margin-bottom:12px;}
+.mbox{position:absolute;border:3px solid var(--blue);border-radius:6px;}
+
+/* 내용 넣는 법 */
+.howto{border:4px solid var(--ink);background:#fff;box-shadow:10px 10px 0 var(--blue);border-radius:4px;padding:34px 38px;}
+.howto ol{margin-left:22px;display:flex;flex-direction:column;gap:14px;}
+.howto li{font-size:17px;font-weight:600;}
+.howto li span{font-weight:500;color:#555;}
+.slot{font-family:monospace;background:var(--panel-soft);border:2px solid #d4d4d4;border-radius:6px;padding:1px 8px;font-size:14px;color:var(--blue-deep);font-weight:700;}
+.tbl{width:100%;border-collapse:collapse;margin-top:20px;font-size:15px;}
+.tbl th,.tbl td{border:2px solid var(--ink);padding:10px 12px;text-align:left;}
+.tbl th{background:var(--ink);color:#fff;font-family:'Do Hyeon';font-weight:400;}
+.tbl td code{background:var(--panel-soft);padding:1px 6px;border-radius:4px;font-size:13px;}
+.foot{margin-top:60px;text-align:center;color:#999;font-size:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+    <h1>레트로 브라우저 <span>카드뉴스</span><br>디자인 가이드</h1>
+    <p>인스타그램 1080 × 1350px · 라이트 테마(흰 배경 + 코발트 블루 + 블랙) · 깜찍 레트로 테크 무드</p>
+  </header>
+
+  <!-- 1. 컬러 팔레트 -->
+  <section>
+    <h2>01. 컬러 팔레트</h2>
+    <p class="sub">레퍼런스에서 추출한 정확한 HEX. 메인은 코발트 블루 1색, 배경은 흰색, 텍스트·테두리는 소프트 블랙.</p>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#0355FD"></div><div class="meta"><div class="name">메인 블루</div><div class="hex">#0355FD</div><div class="role">테두리·강조박스·키워드·장식</div></div></div>
+      <div class="sw"><div class="chip" style="background:#0033B8"></div><div class="meta"><div class="name">딥 블루</div><div class="hex">#0033B8</div><div class="role">버튼/박스 하드 그림자</div></div></div>
+      <div class="sw"><div class="chip" style="background:#E6EEFF"></div><div class="meta"><div class="name">연블루</div><div class="hex">#E6EEFF</div><div class="role">밑줄 하이라이트·보조 배경</div></div></div>
+      <div class="sw"><div class="chip" style="background:#1A1A1A"></div><div class="meta"><div class="name">잉크 블랙</div><div class="hex">#1A1A1A</div><div class="role">본문·창 테두리·하드 그림자</div></div></div>
+      <div class="sw"><div class="chip" style="background:#FFFFFF;border-bottom:3px solid #1A1A1A"></div><div class="meta"><div class="name">페이퍼 화이트</div><div class="hex">#FFFFFF</div><div class="role">카드/창 배경</div></div></div>
+      <div class="sw"><div class="chip" style="background:#E5E5E5"></div><div class="meta"><div class="name">패널 그레이</div><div class="hex">#E5E5E5</div><div class="role">타이틀바·스크롤바</div></div></div>
+      <div class="sw"><div class="chip" style="background:#F2F2F2;border-bottom:3px solid #ddd"></div><div class="meta"><div class="name">소프트 그레이</div><div class="hex">#F2F2F2</div><div class="role">본문 강조 박스</div></div></div>
+    </div>
+  </section>
+
+  <!-- 2. 타이포그래피 -->
+  <section>
+    <h2>02. 타이포그래피</h2>
+    <p class="sub">굵고 둥근 느낌의 한글 조합. 본문 최소 28px(실제 카드 기준) 가드레일 유지.</p>
+    <div class="card-panel typ">
+      <div class="row"><div class="tag">Display / 표지 108px</div><div class="d-hero">AI가 학습한 데이터<span class="font-note">Black Han Sans</span></div></div>
+      <div class="row"><div class="tag">H1 / 헤드라인 76px</div><div class="d-h1">크게 강조하는 한 줄<span class="font-note">Black Han Sans</span></div></div>
+      <div class="row"><div class="tag">H2 / 중제목·라벨 58px</div><div class="d-h2">첫 번째 항목 제목<span class="font-note">Do Hyeon</span></div></div>
+      <div class="row"><div class="tag">Lead / 리드 40px</div><div class="d-lead">주제를 여는 리드 문장입니다<span class="font-note">Gothic A1 800</span></div></div>
+      <div class="row"><div class="tag">Body / 본문 34px (≥28)</div><div class="d-body">항목을 설명하는 본문 텍스트가 들어갑니다. 한두 줄로 간결하게.<span class="font-note">Gothic A1 500</span></div></div>
+      <div class="row"><div class="tag">Caption / 캡션 28px</div><div class="d-cap">출처·부연 설명 캡션<span class="font-note">Gothic A1 500</span></div></div>
+    </div>
+    <p class="sub" style="margin-top:16px">※ 1순위 본문 폰트는 <b>Pretendard</b>(사용 환경에서 로드), 미설치 시 <b>Gothic A1</b>로 자동 대체. 디스플레이는 임팩트용 <b>Black Han Sans</b>, 라벨·소제목은 둥근 <b>Do Hyeon</b>, 필요 시 <b>Jua</b>.</p>
+  </section>
+
+  <!-- 3. 프레임 모티프 -->
+  <section>
+    <h2>03. 프레임 모티프 · 레트로 브라우저 창</h2>
+    <p class="sub">모든 카드의 공통 뼈대. 바깥 블루 프레임 → 블랙 테두리 창 + 하드 그림자 → 타이틀바(점 3개) → 콘텐츠 + 우측 스크롤바.</p>
+    <div class="card-panel frame-demo">
+      <div class="mini">
+        <div class="mwin">
+          <div class="mtb"><i></i><i></i><i></i></div>
+          <div class="mvp">
+            <div class="mco"></div>
+            <div class="msb">▲<div class="th"></div>▼</div>
+          </div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li><b>바깥 블루 프레임</b> — 16px 코발트 블루 외곽선(#0355FD)이 카드 전체를 감싼다.</li>
+        <li><b>레트로 창</b> — 5px 블랙 테두리 + 오른쪽·아래 16px 하드 블랙 그림자(offset, blur 없음)로 입체감.</li>
+        <li><b>타이틀바</b> — 패널 그레이 바 + 하단 블랙 라인, 오른쪽에 속이 빈 점 3개. 왼쪽에 작은 라벨(예: cardnews.exe) 선택.</li>
+        <li><b>우측 스크롤바</b> — 세로 트랙 + 위/아래 삼각형 + 블랙 썸(thumb). 장식 전용.</li>
+        <li><b>여백</b> — 콘텐츠 영역은 상하 64px·좌우 72px, 스크롤바를 피해 우측 여유.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4. 장식 요소 -->
+  <section>
+    <h2>04. 장식 요소</h2>
+    <p class="sub">모두 블루 단색. 과하지 않게 모서리·여백에 배치해 '깜찍 레트로 테크' 무드를 만든다.</p>
+    <div class="deco-grid">
+      <div class="deco-card"><div class="viz">
+        <svg width="120" height="60" viewBox="0 0 150 70"><g fill="#0355FD"><rect x="0" y="40" width="16" height="16"/><rect x="24" y="40" width="16" height="16" opacity=".5"/><rect x="24" y="16" width="16" height="16"/><rect x="48" y="16" width="16" height="16"/><rect x="72" y="0" width="16" height="16"/><rect x="96" y="0" width="16" height="16" opacity=".5"/></g></svg>
+      </div><div class="nm">픽셀 블록</div><div class="ds">14~16px 정사각형 계단/점선 트레일</div></div>
+
+      <div class="deco-card"><div class="viz">
+        <svg width="56" height="56" viewBox="0 0 24 24"><path d="M12 0C13 7 17 11 24 12C17 13 13 17 12 24C11 17 7 13 0 12C7 11 11 7 12 0Z" fill="#0355FD"/></svg>
+      </div><div class="nm">스파클 ✦</div><div class="ds">4각 반짝이, 강조 어구 옆·여백에</div></div>
+
+      <div class="deco-card"><div class="viz">
+        <svg width="54" height="64" viewBox="0 0 32 40"><path d="M4 2 L4 31 L12 23 L17 35 L22 33 L17 21 L27 21 Z" fill="#0355FD" stroke="#1A1A1A" stroke-width="2" stroke-linejoin="round"/></svg>
+      </div><div class="nm">레트로 커서</div><div class="ds">표지 등 포인트 1곳에만</div></div>
+
+      <div class="deco-card"><div class="viz">
+        <span style="font-family:'Gothic A1';font-weight:800;color:#0355FD;letter-spacing:.14em;font-size:22px;opacity:.85">01001<br>10110</span>
+      </div><div class="nm">2진수 디테일</div><div class="ds">0/1 텍스트, 테크 무드 보조</div></div>
+
+      <div class="deco-card"><div class="viz">
+        <svg width="150" height="20"><line x1="2" y1="10" x2="148" y2="10" stroke="#0355FD" stroke-width="5" stroke-dasharray="2 14" stroke-linecap="round"/></svg>
+      </div><div class="nm">점선 구분선</div><div class="ds">비교/섹션 구분</div></div>
+
+      <div class="deco-card"><div class="viz">
+        <span class="pill" style="font-size:16px">소제목 라벨</span>
+      </div><div class="nm">검정 알약 라벨</div><div class="ds">카드 상단 질문/소제목</div></div>
+    </div>
+  </section>
+
+  <!-- 5. 강조 스타일 -->
+  <section>
+    <h2>05. 텍스트 강조 스타일</h2>
+    <p class="sub">문장 안에서 핵심을 짚는 4가지 방식. 한 카드에 2~3개까지만 사용해 과함을 방지.</p>
+    <div class="card-panel emph">
+      <span class="k-blue">파란 박스 (흰 글씨)</span>
+      <span class="k-box">흰 박스 ▾ (파란 테두리)</span>
+      <span>본문 속 <span class="c-blue">파란 키워드</span></span>
+      <span>본문 속 <span class="u-blue">파란 밑줄 하이라이트</span></span>
+      <span class="pill">검정 알약 라벨</span>
+    </div>
+  </section>
+
+  <!-- 6. 레이아웃 패턴 6종 -->
+  <section>
+    <h2>06. 카드 역할별 레이아웃 6종</h2>
+    <p class="sub">보통 6장 구성: 표지 → 도입 → 핵심정보 → 리스트 → 비교·사례 → 마무리 CTA. 제공 템플릿은 ★표시.</p>
+    <div class="layouts">
+
+      <div class="lay"><div class="top"><span class="n">01</span><span class="role">표지형 ★</span></div>
+        <div class="mock">
+          <div class="mbox" style="left:16px;top:70px;width:150px;height:44px"></div>
+          <div class="mtitle" style="position:absolute;left:16px;top:28px;width:55%"></div>
+          <div style="position:absolute;left:16px;bottom:50px" class="mline s blue"></div>
+          <svg style="position:absolute;right:16px;bottom:14px" width="34" height="42" viewBox="0 0 32 40"><path d="M4 2 L4 31 L12 23 L17 35 L22 33 L17 21 L27 21 Z" fill="#0355FD" stroke="#1A1A1A" stroke-width="2"/></svg>
+        </div>
+        <div class="body-txt">큰 <b>메인 타이틀</b> + 핵심 키워드 박스 + 부제(↳) + 로고 슬롯. 커서·픽셀로 포인트.</div>
+      </div>
+
+      <div class="lay"><div class="top"><span class="n">02</span><span class="role">도입/본문형 ★</span></div>
+        <div class="mock">
+          <div style="position:absolute;left:16px;top:18px;right:16px"><div class="mline m"></div><div class="mline"></div><div class="mline s"></div></div>
+          <div style="position:absolute;left:16px;bottom:30px"><div class="mline blue" style="width:120px;height:20px"></div></div>
+        </div>
+        <div class="body-txt">도입 문단 + 중간 강조 문장 + 하단 <b>큰 펀치라인</b>. 키워드/밑줄 강조 활용.</div>
+      </div>
+
+      <div class="lay"><div class="top"><span class="n">03</span><span class="role">핵심정보형</span></div>
+        <div class="mock">
+          <span class="pill" style="position:absolute;left:50%;top:14px;transform:translateX(-50%);font-size:12px;padding:4px 12px">소제목</span>
+          <div style="position:absolute;left:16px;top:64px;right:16px"><div class="mtitle" style="width:65%;height:22px"></div><div class="mline m"></div><div class="mline s"></div></div>
+        </div>
+        <div class="body-txt">검정 알약 소제목 + 한 가지 <b>핵심 개념</b>을 크게 설명. 아이콘 1개로 상징.</div>
+      </div>
+
+      <div class="lay"><div class="top"><span class="n">04</span><span class="role">리스트형 ★</span></div>
+        <div class="mock">
+          <div style="position:absolute;left:16px;top:16px;display:flex;gap:10px;align-items:center"><div class="mb" style="width:34px;height:34px"></div><div><div class="mline blue" style="width:30px;height:12px;margin:0"></div><div class="mline s" style="margin:5px 0 0"></div></div></div>
+          <div style="position:absolute;left:16px;top:86px;display:flex;gap:10px;align-items:center"><div class="mb" style="width:34px;height:34px"></div><div><div class="mline blue" style="width:30px;height:12px;margin:0"></div><div class="mline s" style="margin:5px 0 0"></div></div></div>
+        </div>
+        <div class="body-txt">번호(01·02…) + 아이콘 + 제목 + 설명을 반복. <b>2~4개 항목</b> 정리에 최적.</div>
+      </div>
+
+      <div class="lay"><div class="top"><span class="n">05</span><span class="role">비교·사례형 ★</span></div>
+        <div class="mock">
+          <div style="position:absolute;left:16px;top:50px" class="mline s"></div>
+          <div style="position:absolute;right:16px;top:50px;width:55px" class="mline"></div>
+          <div style="position:absolute;left:50%;top:40px;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;background:#0355FD;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Black Han Sans';font-size:16px">VS</div>
+        </div>
+        <div class="body-txt">A <b>VS</b> B 대비 또는 사례 리스트(기관/인용). 점선 구분 + 블루 뱃지.</div>
+      </div>
+
+      <div class="lay"><div class="top"><span class="n">06</span><span class="role">마무리 CTA형 ★</span></div>
+        <div class="mock">
+          <div style="position:absolute;left:16px;top:16px"><div class="mline blue" style="width:150px;height:16px"></div></div>
+          <div style="position:absolute;left:16px;right:16px;bottom:16px;background:#e3e6eb;border-radius:8px;height:110px;padding:12px"><div class="mline m"></div><div class="mline"></div><div class="mline s"></div></div>
+        </div>
+        <div class="body-txt">핵심 요약 한 줄 + <b>회색 박스</b> 안 마무리 메시지/전망/행동 유도(CTA).</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 7. 내용 넣는 법 -->
+  <section>
+    <h2>07. 내용 넣는 법</h2>
+    <p class="sub">템플릿 HTML의 플레이스홀더 텍스트를 실제 문구로 바꾸면 완성됩니다.</p>
+    <div class="howto">
+      <ol>
+        <li>원하는 역할의 템플릿 파일을 복사한다 <span>(예: 표지는 <span class="slot">template-01-cover.html</span>)</span></li>
+        <li><span class="slot">"~자리"</span>로 표시된 플레이스홀더 텍스트를 실제 문구로 교체한다.</li>
+        <li>강조할 단어는 <span class="slot">&lt;span class="c-blue"&gt;</span>(파란 키워드) / <span class="slot">u-blue</span>(밑줄) / <span class="slot">k-box</span>(박스)로 감싼다.</li>
+        <li>아이콘/로고 슬롯에는 SVG·이미지를 넣고, 불필요한 장식은 지워도 된다.</li>
+        <li>Playwright로 1080×1350px(scale 2) PNG 렌더 → 인스타 업로드.</li>
+      </ol>
+
+      <table class="tbl">
+        <thead><tr><th>카드 역할</th><th>채울 슬롯</th></tr></thead>
+        <tbody>
+          <tr><td>표지</td><td>메인 키워드 · 핵심 문구 박스 · 부제(↳) · 로고/기관명</td></tr>
+          <tr><td>도입/본문</td><td>도입 문단 · 강조 문장(키워드) · 결론 펀치라인</td></tr>
+          <tr><td>핵심정보</td><td>소제목 라벨 · 핵심 개념 설명 · 상징 아이콘</td></tr>
+          <tr><td>리스트</td><td>소제목 라벨 · 항목별(번호·아이콘·제목·설명) × 2~4</td></tr>
+          <tr><td>비교·사례</td><td>질문 라벨 · 개념 A/B · 사례(기관·인용) 목록</td></tr>
+          <tr><td>마무리 CTA</td><td>요약 한 줄 · 마무리 메시지/전망/행동 유도</td></tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top:22px;font-size:16px;color:#555;font-weight:500">제작자에게 <b>주제 · 6장 각 카드의 문구(또는 핵심 메시지) · 로고/아이콘</b>만 전달하면 바로 완성 카드로 뽑을 수 있습니다.</p>
+    </div>
+  </section>
+
+  <div class="foot">Retro Browser Card News Template · 1080×1350 · Light theme (#0355FD / #1A1A1A / #FFFFFF)</div>
+</div>
+</body>
+</html>
