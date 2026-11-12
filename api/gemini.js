@@ -38,7 +38,7 @@ const RETRY_STATUS = new Set([429, 500, 502, 503, 504]);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 /* 한 번 호출이 이보다 오래 걸리면 끊는다. 60초를 마냥 기다리지 않는다. */
-const CALL_TIMEOUT_MS = 22000;
+const CALL_TIMEOUT_MS = 45000;
 
 async function callUpstream(model, key, forward) {
   const ac = new AbortController();

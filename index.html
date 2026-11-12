@@ -664,6 +664,9 @@
     <div class="field"><span>목적</span>
       <div class="chips" id="purposeChips"></div>
     </div>
+    <div class="field"><span>디자인 계열 <em>· 전체 장을 같은 계열로 맞춥니다</em></span>
+      <div class="chips" id="famChips"></div>
+    </div>
 
     <button class="go-btn" id="buildBtn">카드뉴스 만들기</button>
     <div id="buildNote"></div>
@@ -869,11 +872,16 @@ function frameEl(c, n, cls) {
     + bgDiv(c, null, n) + '</div>';
 }
 function checksEl(c, cls, n) {
-  let h = '<div class="checks ' + cls + '">';
-  for (let i = 1; i <= n; i++) h += sl('chk' + i, '', c.f['chk' + i]);
-  return h + '</div>';
+  let h = '';
+  for (let i = 1; i <= n; i++) {
+    const v = c.f['chk' + i];
+    if (v && v.trim()) h += sl('chk' + i, '', v);
+  }
+  return h ? '<div class="checks ' + cls + '">' + h + '</div>' : '';
 }
 function statEl(c, cls, pre, mid) {
+  const has = ['k', 'v', 'n'].some(x => (c.f[pre + x] || '').trim());
+  if (!has) return '';
   let h = '<div class="stat ' + (mid ? 'mid ' : '') + cls + '">';
   if (!mid) h += sl(pre + 'k', 'k', c.f[pre + 'k']);
   h += sl(pre + 'v', 'v', c.f[pre + 'v']) + sl(pre + 'n', 'n', c.f[pre + 'n']);
@@ -907,8 +915,11 @@ Object.assign(LAYOUTS, {
     html: c => retroShell(
       sl('kicker','hh s-kicker',c.f.kicker) + sl('title','hh s-title',c.f.title) +
       sl('lead','gg s-lead',c.f.lead) +
-      '<div class="chiprow s-chips">' + [1,2,3].map(n =>
-        '<span data-k="chip' + n + '" contenteditable="true">' + esc(c.f['chip'+n]) + '</span>').join('') + '</div>' +
+      (function () {
+        const cs = [1,2,3].filter(n => (c.f['chip'+n] || '').trim())
+          .map(n => '<span data-k="chip' + n + '" contenteditable="true">' + esc(c.f['chip'+n]) + '</span>');
+        return cs.length ? '<div class="chiprow s-chips">' + cs.join('') + '</div>' : '';
+      })() +
       frameEl(c, 0, 's-frame'))
   },
   rStep: {
@@ -993,7 +1004,9 @@ Object.assign(LAYOUTS, {
       frameEl(c, 0, 's-frame') +
       statEl(c, 's-s1', 's1', true) + statEl(c, 's-s2', 's2', true) + statEl(c, 's-s3', 's3', true) +
       sl('lead','gg s-lead',c.f.lead) +
-      '<div class="cta s-cta">' + sl('ctaLabel','lb',c.f.ctaLabel) + sl('ctaNo','no',c.f.ctaNo) + '</div>')
+      ((c.f.ctaLabel || '').trim() || (c.f.ctaNo || '').trim()
+        ? '<div class="cta s-cta">' + sl('ctaLabel','lb',c.f.ctaLabel) + sl('ctaNo','no',c.f.ctaNo) + '</div>'
+        : ''))
   }
 });
 
@@ -1017,7 +1030,8 @@ const S = {
   cards: [],        // {layout, f:{}, bgs:[{img,x,y,zoom}]}
   shots: [],        // 사용자가 올린 사진 data URI
   sel: 0,
-  purpose: '정보 전달'
+  purpose: '정보 전달',
+  family: 'photo'          // 전체 장을 한 계열로 통일한다
 };
 
 const esc = s => String(s == null ? '' : s)
@@ -1299,9 +1313,13 @@ function renderEditor() {
     inp.addEventListener('input', () => {
       S.cards[S.sel].f[inp.dataset.f] = inp.value;
       const live = document.querySelector('#bigScaler [data-k="' + inp.dataset.f + '"]');
-      if (live) { live.innerHTML = esc(inp.value); fitText(live); }
-      refreshThumb(S.sel);
-      renderCardList();
+      if (live) {
+        live.innerHTML = esc(inp.value); fitText(live);
+        refreshThumb(S.sel); renderCardList();
+      } else {
+        /* 비어 있어 아직 그려지지 않은 칸이다. 통째로 다시 그려야 나타난다. */
+        renderAll();
+      }
     });
   });
   box.querySelectorAll('[data-bg]').forEach(inp => {
@@ -1844,6 +1862,18 @@ document.getElementById('logoInput').addEventListener('change', e => {
   r.readAsDataURL(f);
 });
 
+const famBox = document.getElementById('famChips');
+[['photo','사진 배경형'], ['retro','창 프레임형']].forEach(([id, label]) => {
+  const b = document.createElement('button');
+  b.textContent = label;
+  b.className = id === S.family ? 'on' : '';
+  b.addEventListener('click', () => {
+    S.family = id;
+    [...famBox.children].forEach((x, i) => x.className = (i === (id === 'photo' ? 0 : 1)) ? 'on' : '');
+  });
+  famBox.appendChild(b);
+});
+
 const chipBox = document.getElementById('purposeChips');
 PURPOSES.forEach(p => {
   const b = document.createElement('button');
@@ -1884,43 +1914,61 @@ function note(boxId, kind, html) {
   b.innerHTML = html ? '<div class="note ' + kind + '">' + html + '</div>' : '';
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   ① 원고 → 카드 (Gemini · 구조화 출력)
+function dataUriParts(list) {
+  return list.map(u => {
+    const m = /^data:([^;]+);base64,(.*)$/.exec(u);
+    return m ? { inlineData: { mimeType: m[1], data: m[2] } } : null;
+  }).filter(Boolean);
+}
 
-   가장 중요한 규칙: 원고에 없는 사실은 만들지 않는다.
-   날짜·가격·연락처처럼 확인할 수 없는 값은 비워 두고 missing 에 적게 한다.
-   그 목록을 사용자에게 그대로 보여 준다.
-   ══════════════════════════════════════════════════════════════════ */
-const STR = { type: 'STRING' };
+/* 사진을 그대로 보내면 용량이 커서 서버가 거부한다.
+   AI 에 보낼 때만 긴 변 1024px JPEG 로 줄인다. 카드에는 원본을 쓴다. */
+function shrink(dataUri, maxPx) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const r = Math.min(1, maxPx / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      try { resolve(c.toDataURL('image/jpeg', 0.75)); } catch (e) { resolve(dataUri); }
+    };
+    img.onerror = () => resolve(dataUri);
+    img.src = dataUri;
+  });
+}
 
-/* 응답 스키마는 레이아웃에서 바로 만든다.
-   손으로 적어 두면 템플릿을 늘릴 때마다 빠뜨리게 된다.
-   실제로 창 계열 칸(pill·ques·ans·chk…)이 빠져 있어서
-   AI 가 창 템플릿을 고르면 글자가 통째로 비어 나왔다. */
-const ALL_SLOT_KEYS = (() => {
-  const set = new Set();
-  Object.keys(LAYOUTS).forEach(k => LAYOUTS[k].slots.forEach(s => set.add(s.k)));
-  return [...set];
-})();
-const CARD_SCHEMA = {
-  type: 'OBJECT',
-  properties: {
-    cards: {
-      type: 'ARRAY',
-      items: {
-        type: 'OBJECT',
-        properties: Object.assign(
-          { layout: { type: 'STRING', enum: LAYOUT_KEYS } },
-          ...ALL_SLOT_KEYS.map(k => ({ [k]: STR })),
-          { imageIndex: { type: 'INTEGER' } }
-        ),
-        required: ['layout']
-      }
-    },
-    missing: { type: 'ARRAY', items: STR }
-  },
-  required: ['cards', 'missing']
-};
+function explainGemini(status, msg) {
+  if (status === 400 && /API key not valid/i.test(msg)) return '서버의 AI 키가 올바르지 않습니다. 관리자에게 문의해 주세요.';
+  if (status === 413) return '보낸 사진이 너무 큽니다. 사진 수를 줄이거나 작은 사진을 써 주세요.';
+  if (status === 500 && /GEMINI_API_KEY/.test(msg)) return 'AI 키가 서버에 설정되지 않았습니다. 관리자에게 문의해 주세요.';
+  if (status === 404) return 'AI 모델을 찾을 수 없습니다. 관리자에게 문의해 주세요. (원문: ' + msg + ')';
+  if (status === 429) return '요청이 너무 잦거나 무료 한도를 넘었습니다. 잠시 후 다시 시도해 주세요.';
+  if (status === 503) return 'AI 서버가 지금 많이 붐빕니다. 서버가 세 번까지 다시 시도했지만 아직 여유가 없네요. '
+    + '1~2분 뒤에 [카드뉴스 만들기] 를 한 번 더 눌러 주세요.';
+  if (status === 504) return 'AI 응답이 너무 오래 걸립니다. 원고를 조금 줄이거나 잠시 후 다시 시도해 주세요.';
+  if (status === 403) return '서버의 AI 키로는 이 기능을 쓸 수 없습니다. 관리자에게 문의해 주세요.';
+  return 'Gemini 오류 (HTTP ' + status + '): ' + msg;
+}
+
+/* API 키는 서버(Vercel 환경변수)에만 있다. 브라우저는 키를 모른다. */
+async function callGemini(kind, body) {
+  if (location.protocol === 'file:') {
+    throw new Error('파일을 직접 열었을 때는 AI 기능을 쓸 수 없습니다. '
+      + '인터넷에 올린 주소로 접속해 주세요.');
+  }
+  const res = await fetch('/api/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ kind, body })
+  });
+  const json = await res.json().catch(() => null);
+  if (!res.ok) {
+    const msg = json && json.error && json.error.message ? json.error.message : ('HTTP ' + res.status);
+    throw new Error(explainGemini(res.status, msg));
+  }
+  return json;
+}
 
 /* ══════════════════════════════════════════════════════════════════
    칸마다 글자가 몇 자 들어가는지 실제로 재서 AI 에게 알려 준다.
@@ -1985,41 +2033,163 @@ async function measureLimits() {
   LIMITS = out;
   return out;
 }
+/* ══════════════════════════════════════════════════════════════════
+   AI 는 글만 쓰고, 배치는 앱이 한다
 
-/* 'cover: title 9자x3줄, cap 23자x1줄 | ...' 형태로 압축해 프롬프트에 싣는다 */
-function layoutBrief(lim) {
-  return Object.keys(LAYOUTS).map(k => {
-    const parts = LAYOUTS[k].slots.map(s => {
-      const L = (lim[k] || {})[s.k];
-      return L ? s.k + ' ' + L.ko + 'x' + L.lines : s.k;
-    });
-    return k + ': ' + parts.join(', ');
-  }).join('\n');
+   예전에는 AI 에게 "어떤 템플릿을 쓸지"까지 고르게 하고 48개 칸을
+   응답 스키마에 모두 열어 뒀다. 카드마다 48칸 중 무엇을 채울지
+   제약을 따라가며 만들어야 해서 느렸고, 칸 이름을 하나라도 빠뜨리면
+   글자가 통째로 비는 사고가 났다.
+
+   이제 AI 가 돌려주는 것은 장마다 역할·제목·보조문구·본문 네 가지뿐이다.
+   어떤 템플릿에 어떻게 넣을지는 앱이 정한다. 자리와 글자 수는 앱이
+   이미 실측으로 알고 있으므로, 이쪽이 빠르고 결과도 일정하다.
+   ══════════════════════════════════════════════════════════════════ */
+const STR = { type: 'STRING' };
+const ROLES = ['표지', '본문', '정리', '마무리'];
+const CARD_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    cards: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          role:  { type: 'STRING', enum: ROLES },
+          title: STR,
+          sub:   STR,
+          body:  STR,
+          imageIndex: { type: 'INTEGER' }
+        },
+        required: ['role', 'title']
+      }
+    },
+    missing: { type: 'ARRAY', items: STR }
+  },
+  required: ['cards', 'missing']
+};
+
+/* 역할에 쓸 템플릿. 글자를 자동으로 넣어도 결과가 안정적인 것만 고른다.
+   2분할·3분할·창·수치처럼 사진 장수나 숫자가 꼭 필요한 것은 제외하고,
+   사용자가 직접 고를 때만 쓰도록 둔다. */
+const AUTO_LAYOUTS = {
+  photo: { '표지':['cover'], '본문':['bodyL','bodyM','color','qa'], '정리':['sum'], '마무리':['end'] },
+  retro: { '표지':['rCoverL','rCover'], '본문':['rStep','rQa'], '정리':['rQa'], '마무리':['rEnd'] }
+};
+
+/* 글을 칸 폭에 맞춰 다시 줄 나눔 한다. 넘치면 뒤를 잘라 '…' 로 맺는다. */
+function wrapTo(text, lim) {
+  const s = String(text == null ? '' : text).replace(/\s+/g, ' ').trim();
+  if (!s) return '';
+  if (!lim) return s;
+  const per = Math.max(2, lim.ko), max = Math.max(1, lim.lines);
+  const words = s.split(' ');
+  const lines = [];
+  let cur = '';
+  for (const w of words) {
+    const next = cur ? cur + ' ' + w : w;
+    if ([...next].length <= per) { cur = next; continue; }
+    if (cur) lines.push(cur);
+    // 한 단어가 한 줄보다 길면 글자 단위로 끊는다
+    let rest = [...w];
+    while (rest.length > per) { lines.push(rest.slice(0, per).join('')); rest = rest.slice(per); }
+    cur = rest.join('');
+  }
+  if (cur) lines.push(cur);
+  if (lines.length <= max) return lines.join('\n');
+  const kept = lines.slice(0, max);
+  const last = [...kept[max - 1]];
+  kept[max - 1] = last.length >= per ? last.slice(0, per - 1).join('') + '…' : kept[max - 1] + '…';
+  return kept.join('\n');
 }
 
-function buildAnalysisPrompt(n, industry, purpose, script, shotCount, brief) {
+/* 본문에서 짧은 키워드 몇 개를 뽑는다. 라벨·체크 항목에 쓴다. */
+function keywords(text, count, maxLen) {
+  const parts = String(text || '').split(/[.!?·,\n]/).map(s => s.trim()).filter(Boolean);
+  const out = [];
+  for (const p of parts) {
+    if (out.length >= count) break;
+    const w = [...p];
+    out.push(w.length > maxLen ? w.slice(0, maxLen).join('') : p);
+  }
+  return out;
+}
+
+/* 템플릿마다 제목·보조문구·본문을 어느 칸에 넣을지 정한다 */
+const MAPPERS = {
+  cover:   (t, L) => ({ title: wrapTo(t.title, L.title), cap: wrapTo(t.sub || t.body, L.cap) }),
+  bodyL:   (t, L) => ({ title: wrapTo(t.title, L.title), body: wrapTo(t.body || t.sub, L.body) }),
+  bodyM:   (t, L) => ({ title: wrapTo(t.title, L.title), body: wrapTo(t.body || t.sub, L.body) }),
+  color:   (t, L) => ({ body: wrapTo([t.title, t.body].filter(Boolean).join(' '), L.body) }),
+  qa:      (t, L, i) => ({ badge: String(i).padStart(2, '0'),
+                           q: wrapTo(t.title, L.q), body: wrapTo(t.body || t.sub, L.body) }),
+  sum:     (t, L) => {
+    const ks = keywords(t.body, 3, (L.p1 || { ko: 10 }).ko);
+    return { lead: wrapTo(t.sub || t.title, L.lead),
+             p1: ks[0] || '', p2: ks[1] || '', p3: ks[2] || '',
+             out: wrapTo(t.body, L.out), key: wrapTo(t.title, L.key) };
+  },
+  end:     (t, L) => ({ msg: wrapTo(t.body || t.sub || t.title, L.msg) }),
+  rCover:  (t, L) => ({ pill: wrapTo(t.sub, L.pill), title: wrapTo(t.title, L.title) }),
+  rCoverL: (t, L) => {
+    const ks = keywords(t.body, 3, (L.chip1 || { ko: 8 }).ko);
+    return { kicker: wrapTo(t.sub, L.kicker), title: wrapTo(t.title, L.title),
+             lead: wrapTo(t.body, L.lead),
+             chip1: ks[0] || '', chip2: ks[1] || '', chip3: ks[2] || '',
+             fname: 'photo_01.jpg' };
+  },
+  rStep:   (t, L, i) => ({ pill: wrapTo('코스 ' + String(i).padStart(2, '0'), L.pill),
+                           title: wrapTo(t.title, L.title),
+                           body1: wrapTo(t.sub || t.body, L.body1),
+                           body2: wrapTo(t.sub ? t.body : '', L.body2),
+                           fname: 'photo_' + String(i).padStart(2, '0') + '.jpg' }),
+  rQa:     (t, L, i) => {
+    const ks = keywords(t.body, 3, (L.chk1 || { ko: 20 }).ko);
+    return { pill: wrapTo(t.sub, L.pill), ques: wrapTo(t.title, L.ques),
+             ans: wrapTo(t.body, L.ans),
+             chk1: ks[0] || '', chk2: ks[1] || '', chk3: ks[2] || '',
+             fname: 'photo_' + String(i).padStart(2, '0') + '.jpg' };
+  },
+  rEnd:    (t, L) => {
+    const tl = wrapTo(t.title, { ko: (L.t1 || { ko: 11 }).ko, lines: 3 }).split('\n');
+    const ks = keywords(t.body, 3, 6);
+    return { t1: tl[0] || '', t2: tl[1] || '', t3: tl[2] || '',
+             s1v: ks[0] || '', s1n: '', s2v: ks[1] || '', s2n: '', s3v: ks[2] || '', s3n: '',
+             lead: wrapTo(t.body, L.lead),
+             ctaLabel: wrapTo(t.sub, L.ctaLabel), ctaNo: '',
+             fname: 'photo_last.jpg' };
+  }
+};
+
+/* 역할 순서에 맞춰 템플릿을 고른다. 같은 모양이 연달아 나오지 않게 돌려 쓴다. */
+function pickLayouts(cards, family) {
+  const table = AUTO_LAYOUTS[family] || AUTO_LAYOUTS.photo;
+  const used = {};
+  return cards.map(c => {
+    const pool = table[c.role] || table['본문'];
+    const n = used[c.role] = (used[c.role] || 0);
+    used[c.role]++;
+    return pool[n % pool.length];
+  });
+}
+
+function buildAnalysisPrompt(n, industry, purpose, script, shotCount, lim) {
   return [
 '한국어 카드뉴스 편집자로서 아래 원고를 ' + n + '장으로 나눠 JSON 으로만 답하세요.',
+'디자인은 앱이 맡습니다. 당신은 장마다 역할과 글만 정하면 됩니다.',
 '',
 '[지어내지 않기] 원고에 없는 날짜·가격·전화번호·주소·수치·실적은 절대 쓰지 마세요.',
-'필요한데 원고에 없으면 그 칸을 빈 문자열로 두고, 무엇이 필요한지 missing 에 한 문장으로 적으세요.',
-'과장된 효능·보장 표현을 새로 만들지 마세요.',
+'필요한데 원고에 없으면 빈 문자열로 두고, 무엇이 필요한지 missing 에 한 문장으로 적으세요.',
 '',
-'[길이] 아래 표의 "칸 N자xM줄" 은 그 칸에 한글 N자까지, M줄까지 들어간다는 뜻입니다.',
-'한 줄이 N자를 넘거나 줄이 M줄을 넘으면 글자가 작아져 장마다 크기가 달라 보입니다.',
-'각 줄을 N자 이하로 쓰고, 필요하면 \n 으로 줄을 나누되 M줄을 넘기지 마세요.',
-'숫자와 영문은 한글보다 좁아 약 1.8배 더 들어갑니다.',
-'fname 은 사진 파일 이름 자리입니다. cafe_interior.jpg 처럼 짧은 영문으로 쓰세요.',
+'[역할] 1장은 표지, 마지막 장은 마무리. 가운데는 본문. 핵심을 다시 짚을 장이 있으면 정리.',
 '',
-'[구성] 첫 장은 cover·split3·rCover·rCoverL 중 하나, 마지막 장은 end 또는 rEnd.',
-'창 계열(r 로 시작)과 사진 계열을 섞지 말고 한쪽으로 통일하세요.',
-'한 카드에는 그 모양이 쓰는 칸만 채우고 나머지는 비우세요.',
-'',
-'[모양별 칸과 글자 한도]',
-brief,
+'[칸] title 제목 · sub 보조 한 줄 · body 설명',
+'title 은 ' + lim.title + '자 이내(필요하면 두 문장으로 나누지 말고 짧게).',
+'sub 는 ' + lim.sub + '자 이내 한 줄. body 는 ' + lim.body + '자 이내.',
+'줄바꿈은 넣지 마세요. 앱이 칸 폭에 맞춰 알아서 나눕니다.',
 '',
 shotCount
-  ? '[사진] ' + shotCount + '장(0~' + (shotCount - 1) + '번). 어울리는 카드의 imageIndex 에 번호를, 없으면 -1. 중복 금지.'
+  ? '[사진] ' + shotCount + '장(0~' + (shotCount - 1) + '번). 어울리는 장의 imageIndex 에 번호를, 없으면 -1. 중복 금지.'
   : '[사진] 없음. imageIndex 는 모두 -1.',
 '업종: ' + (industry || '미지정') + ' / 목적: ' + purpose,
 '',
@@ -2028,59 +2198,23 @@ script
   ].join('\n');
 }
 
-/* API 키는 서버(Vercel 환경변수)에만 있다. 브라우저는 키를 모른다. */
-async function callGemini(kind, body) {
-  if (location.protocol === 'file:') {
-    throw new Error('파일을 직접 열었을 때는 AI 기능을 쓸 수 없습니다. '
-      + '인터넷에 올린 주소로 접속해 주세요.');
-  }
-  const res = await fetch('/api/gemini', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ kind, body })
-  });
-  const json = await res.json().catch(() => null);
-  if (!res.ok) {
-    const msg = json && json.error && json.error.message ? json.error.message : ('HTTP ' + res.status);
-    throw new Error(explainGemini(res.status, msg));
-  }
-  return json;
-}
-
-/* 사진을 그대로 보내면 용량이 커서 서버가 거부한다.
-   AI 에 보낼 때만 긴 변 1024px JPEG 로 줄인다. 카드에는 원본을 쓴다. */
-function shrink(dataUri, maxPx) {
-  return new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => {
-      const r = Math.min(1, maxPx / Math.max(img.width, img.height));
-      const c = document.createElement('canvas');
-      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
-      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      try { resolve(c.toDataURL('image/jpeg', 0.75)); } catch (e) { resolve(dataUri); }
-    };
-    img.onerror = () => resolve(dataUri);
-    img.src = dataUri;
-  });
-}
-
-function explainGemini(status, msg) {
-  if (status === 400 && /API key not valid/i.test(msg)) return '서버의 AI 키가 올바르지 않습니다. 관리자에게 문의해 주세요.';
-  if (status === 413) return '보낸 사진이 너무 큽니다. 사진 수를 줄이거나 작은 사진을 써 주세요.';
-  if (status === 500 && /GEMINI_API_KEY/.test(msg)) return 'AI 키가 서버에 설정되지 않았습니다. 관리자에게 문의해 주세요.';
-  if (status === 404) return 'AI 모델을 찾을 수 없습니다. 관리자에게 문의해 주세요. (원문: ' + msg + ')';
-  if (status === 429) return '요청이 너무 잦거나 무료 한도를 넘었습니다. 잠시 후 다시 시도해 주세요.';
-  if (status === 503) return 'AI 서버가 지금 많이 붐빕니다. 서버가 세 번까지 다시 시도했지만 아직 여유가 없네요. '
-    + '1~2분 뒤에 [카드뉴스 만들기] 를 한 번 더 눌러 주세요.';
-  if (status === 504) return 'AI 응답이 너무 오래 걸립니다. 원고를 조금 줄이거나 잠시 후 다시 시도해 주세요.';
-  if (status === 403) return '서버의 AI 키로는 이 기능을 쓸 수 없습니다. 관리자에게 문의해 주세요.';
-  return 'Gemini 오류 (HTTP ' + status + '): ' + msg;
-}
-function dataUriParts(list) {
-  return list.map(u => {
-    const m = /^data:([^;]+);base64,(.*)$/.exec(u);
-    return m ? { inlineData: { mimeType: m[1], data: m[2] } } : null;
-  }).filter(Boolean);
+/* 자동 배치에 쓰는 템플릿들의 가장 좁은 한도를 뽑아 AI 에게 알려 준다 */
+function promptLimits(lim, family) {
+  const keys = new Set();
+  Object.values(AUTO_LAYOUTS[family] || AUTO_LAYOUTS.photo).forEach(a => a.forEach(k => keys.add(k)));
+  const pick = (names, fallback) => {
+    let best = Infinity;
+    keys.forEach(k => names.forEach(nm => {
+      const L = (lim[k] || {})[nm];
+      if (L) best = Math.min(best, L.ko * L.lines);
+    }));
+    return best === Infinity ? fallback : best;
+  };
+  return {
+    title: pick(['title', 'ques', 'q', 't1'], 20),
+    sub:   pick(['cap', 'lead', 'kicker', 'pill'], 20),
+    body:  pick(['body', 'ans', 'msg', 'body1', 'out'], 60)
+  };
 }
 
 async function buildFromScript(btn) {
@@ -2091,6 +2225,7 @@ async function buildFromScript(btn) {
   }
   const n = +document.getElementById('cardCountSel').value;
   const industry = document.getElementById('industry').value.trim();
+  const family = S.family || 'photo';
 
   btn.disabled = true;
   const t0 = Date.now();
@@ -2100,7 +2235,7 @@ async function buildFromScript(btn) {
   try {
     const lim = await measureLimits();
     const parts = [{ text: buildAnalysisPrompt(n, industry, S.purpose,
-      script || '(원고 없음. 사진만 보고 구성하세요.)', S.shots.length, layoutBrief(lim)) }];
+      script || '(원고 없음. 사진만 보고 구성하세요.)', S.shots.length, promptLimits(lim, family)) }];
     const small = await Promise.all(S.shots.map(u => shrink(u, 768)));
     dataUriParts(small).forEach(p => parts.push(p));
 
@@ -2110,9 +2245,7 @@ async function buildFromScript(btn) {
         responseMimeType: 'application/json',
         responseSchema: CARD_SCHEMA,
         temperature: 0.6,
-        maxOutputTokens: 4096,
-        /* 원고를 장별로 쪼개는 건 '생각'이 필요 없는 추출 작업이다.
-           기본값대로 두면 모델이 수십 초를 생각에 쓴다. 꺼서 응답을 앞당긴다. */
+        maxOutputTokens: 2048,
         thinkingConfig: { thinkingBudget: 0 }
       }
     });
@@ -2121,28 +2254,31 @@ async function buildFromScript(btn) {
     const txt = cand && cand.content && cand.content.parts
       && cand.content.parts.map(p => p.text || '').join('');
     if (!txt) throw new Error('AI가 아무것도 돌려주지 않았습니다. 원고를 조금 줄여서 다시 시도해 보세요.');
-
     let out;
     try { out = JSON.parse(txt); }
     catch (e) { throw new Error('AI 응답을 읽지 못했습니다. 다시 한 번 눌러 주세요.'); }
 
-    const used = new Set();
-    S.cards = (out.cards || []).filter(c => LAYOUTS[c.layout]).map(c => {
-      const card = newCard(c.layout);
-      LAYOUTS[c.layout].slots.forEach(s => {
-        card.f[s.k] = (c[s.k] != null && String(c[s.k]).trim()) ? String(c[s.k]) : '';
+    const got = (out.cards || []).filter(c => c && c.title != null);
+    if (!got.length) throw new Error('카드를 만들지 못했습니다. 원고를 조금 더 자세히 적어 보세요.');
+
+    const layouts = pickLayouts(got, family);
+    const usedShots = new Set();
+    S.cards = got.map((c, i) => {
+      const key = layouts[i];
+      const card = newCard(key);
+      const mapped = MAPPERS[key] ? MAPPERS[key](c, lim[key] || {}, i + 1) : {};
+      LAYOUTS[key].slots.forEach(s => {
+        card.f[s.k] = mapped[s.k] != null ? mapped[s.k] : '';
       });
       const ix = c.imageIndex;
-      if (card.bgs.length && Number.isInteger(ix) && ix >= 0 && ix < S.shots.length && !used.has(ix)) {
-        card.bgs[0].img = S.shots[ix]; used.add(ix);
+      if (card.bgs.length && Number.isInteger(ix) && ix >= 0 && ix < S.shots.length && !usedShots.has(ix)) {
+        card.bgs[0].img = S.shots[ix]; usedShots.add(ix);
       }
       return card;
     });
-    if (!S.cards.length) throw new Error('카드를 만들지 못했습니다. 원고를 조금 더 자세히 적어 보세요.');
 
     S.sel = 0;
     renderAll();
-
     clearInterval(tick);
     const secs = ((Date.now() - t0) / 1000).toFixed(1);
     const miss = (out.missing || []).filter(m => m && m.trim());
@@ -2155,16 +2291,16 @@ async function buildFromScript(btn) {
   } catch (e) {
     console.error(e);
     const m = (e && e.message) ? e.message : String(e);
-    note('buildNote', 'err', /Failed to fetch|NetworkError/i.test(m)
-      ? 'Gemini 에 연결하지 못했습니다. 인터넷 연결과 광고 차단 확장 프로그램을 확인해 주세요.'
-      : esc(m));
+    const secs = ((Date.now() - t0) / 1000).toFixed(1);
+    note('buildNote', 'err', (/Failed to fetch|NetworkError/i.test(m)
+      ? 'AI 서버에 연결하지 못했습니다. 인터넷 연결과 광고 차단 확장 프로그램을 확인해 주세요.'
+      : esc(m)) + ' <span style="opacity:.6">· ' + secs + '초 지점</span>');
   } finally {
     clearInterval(tick);
     btn.disabled = false;
   }
 }
 document.getElementById('buildBtn').addEventListener('click', e => buildFromScript(e.currentTarget));
-
 /* ══════════ 작업 파일 저장 · 열기 · 다시 만들기 ══════════ */
 function download(blob, name) {
   const url = URL.createObjectURL(blob);
@@ -2174,7 +2310,7 @@ function download(blob, name) {
   setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 document.getElementById('saveProj').addEventListener('click', () => {
-  const data = { v: 1, theme: S.theme, cards: S.cards, shots: S.shots, purpose: S.purpose,
+  const data = { v: 1, theme: S.theme, cards: S.cards, shots: S.shots, purpose: S.purpose, family: S.family,
     script: document.getElementById('script').value,
     industry: document.getElementById('industry').value };
   download(new Blob([JSON.stringify(data)], { type: 'application/json' }),
@@ -2191,6 +2327,8 @@ document.getElementById('openProj').addEventListener('change', e => {
       S.cards = d.cards.filter(c => LAYOUTS[c.layout]);
       S.shots = d.shots || [];
       S.purpose = d.purpose || S.purpose;
+      S.family = d.family || S.family;
+      [...famBox.children].forEach((x,i)=>x.className=(i===(S.family==='photo'?0:1))?'on':'');
       document.getElementById('script').value = d.script || '';
       document.getElementById('industry').value = d.industry || '';
       document.getElementById('accentPicker').value = S.theme.accent;
