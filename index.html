@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>아이딜리 카드뉴스 편집기</title>
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gothic+A1:wght@500;700;800;900&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <!-- ═══════ 편집기 UI (PNG 로 내보내지지 않음) ═══════ -->
@@ -51,6 +53,38 @@
   .field > span em { font-style: normal; color: #C2C2CC; font-weight: 500; }
   .two { display: flex; gap: 8px; } .two > * { flex: 1; min-width: 0; }
 
+  /* 팔레트 — 평소엔 지금 색 하나, 누르면 전부 펼쳐진다 */
+  .pal-head { display: flex; align-items: center; gap: 9px; }
+  .pal-now {
+    width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(0,0,0,.14);
+    background: var(--accent, #E8B9F8); cursor: pointer; flex: none; padding: 0;
+  }
+  .pal-hex { font-size: 12px; font-weight: 700; color: #6B6B76; letter-spacing: .02em; flex: 1; }
+  .pal-toggle {
+    border: 1px solid #E2E2E8; background: #FAFAFC; border-radius: 9px; padding: 7px 11px;
+    font-family: inherit; font-size: 11.5px; font-weight: 700; color: #6B6B76; cursor: pointer;
+  }
+  .pal-toggle:hover { border-color: #1A1A1F; color: #1A1A1F; }
+  .pal-grid {
+    display: none; grid-template-columns: repeat(9, 1fr); gap: 5px; margin-top: 9px;
+    padding: 10px; background: #FAFAFC; border: 1px solid #EEEEF2; border-radius: 11px;
+  }
+  .pal-grid.open { display: grid; }
+  .pal-grid button {
+    aspect-ratio: 1; border-radius: 50%; border: 2px solid transparent; cursor: pointer;
+    padding: 0; transition: transform .1s;
+  }
+  .pal-grid button:hover { transform: scale(1.18); }
+  .pal-grid button.on { border-color: #1A1A1F; }
+  #palCustom { display: none; margin-top: 8px; }
+  #palCustom.open { display: flex; }
+
+  /* 모양 고르기 — 종류별 묶음 */
+  .fam { margin-bottom: 12px; }
+  .fam > h4 {
+    font-size: 11px; font-weight: 800; color: #8A8A95; margin-bottom: 6px;
+    letter-spacing: .02em;
+  }
   .color-row { display: flex; align-items: center; gap: 8px; }
   .color-row input[type="color"] {
     width: 40px; height: 37px; border: 1px solid #E2E2E8; border-radius: 9px;
@@ -360,6 +394,219 @@
     font-weight: 700; font-size: 65px; line-height: 74px; color: var(--accent); }
 </style>
 </head>
+
+<!-- ═══════ 레트로(창) 템플릿 — 코팩익스프레스 카드뉴스에서 뽑은 구조 ═══════
+     바깥 테두리와 강조색은 --accent 하나로 묶여 있어 색만 바꾸면 분위기가 바뀐다.
+     글꼴: 제목 Black Han Sans / 라벨 Do Hyeon / 본문 Gothic A1
+     ══════════════════════════════════════════════════════════════════ -->
+<style id="card-css-retro">
+  .R {
+    width: 1080px; height: 1350px; box-sizing: border-box; background: #FFF;
+    border: 16px solid var(--accent); padding: 30px 48px 48px 30px;
+    font-family: 'Gothic A1', 'Pretendard Variable', sans-serif;
+  }
+  .R .win {
+    width: 970px; height: 1240px; box-sizing: border-box; background: #FFF;
+    border: 5px solid #1A1A1A; box-shadow: 16px 16px 0 #1A1A1A;
+    display: flex; flex-direction: column;
+  }
+  .R .tbar {
+    height: 58px; flex: none; background: #E5E5E5; border-bottom: 5px solid #1A1A1A;
+    display: flex; align-items: center; padding: 0 22px 0 34px; gap: 14px;
+  }
+  .R .tbar .nm {
+    flex: 1; min-width: 0; font-weight: 800; font-size: 24px; line-height: 30px;
+    letter-spacing: .24px; color: #5F5F5F; white-space: nowrap; overflow: hidden;
+  }
+  .R .dot {
+    width: 22px; height: 22px; flex: none; box-sizing: border-box;
+    background: #FFF; border: 3px solid #1A1A1A; border-radius: 11px;
+  }
+  .R .wbody { flex: 1; display: flex; }
+  .R .cont { width: 924px; height: 1172px; flex: none; position: relative; overflow: hidden; }
+  .R .sbar {
+    width: 36px; flex: none; box-sizing: border-box; background: #E5E5E5;
+    border-left: 5px solid #1A1A1A; display: flex; flex-direction: column; align-items: center;
+  }
+  .R .sbar .ar {
+    width: 31px; height: 34px; flex: none; box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .R .sbar .ar.up { border-bottom: 4px solid #1A1A1A; }
+  .R .sbar .ar.dn { border-top: 4px solid #1A1A1A; margin-top: auto; }
+  .R .sbar .ar i { width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; }
+  .R .sbar .ar.up i { border-bottom: 12px solid #1A1A1A; }
+  .R .sbar .ar.dn i { border-top: 12px solid #1A1A1A; }
+  .R .sbar .grip { width: 20px; height: 150px; background: #1A1A1A; border-radius: 2px; margin: 22px 0; }
+
+  /* 글자 */
+  .R .hh { font-family: 'Black Han Sans', sans-serif; font-weight: 400; color: #1A1A1A;
+    position: absolute; white-space: pre-wrap; }
+  .R .gg { font-family: 'Gothic A1', sans-serif; position: absolute; white-space: pre-wrap; }
+  .R .dh { font-family: 'Do Hyeon', sans-serif; font-weight: 400; position: absolute; white-space: pre-wrap; }
+
+  /* 알약 라벨 */
+  .R .rpill {
+    position: absolute; display: inline-flex; align-items: center; justify-content: center;
+    height: 54px; padding: 0 30px; background: #1A1A1A; border-radius: 999px; color: #FFF;
+    font-family: 'Do Hyeon', sans-serif; font-size: 31px; line-height: 39px; white-space: nowrap;
+  }
+
+  /* 사진 액자 */
+  .R .frame {
+    position: absolute; box-sizing: border-box; background: #FFF; border: 5px solid #1A1A1A;
+    box-shadow: 12px 12px 0 #1A1A1A; border-radius: 14px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .R .frame .fbar {
+    height: 44px; flex: none; background: #E5E5E5; border-bottom: 4px solid #1A1A1A;
+    display: flex; align-items: center; padding: 0 18px 0 22px; gap: 10px;
+  }
+  .R .frame .fbar .fn {
+    flex: 1; min-width: 0; font-weight: 800; font-size: 20px; line-height: 25px;
+    letter-spacing: .4px; color: #5F5F5F; white-space: nowrap; overflow: hidden;
+  }
+  .R .frame .fdot {
+    width: 16px; height: 16px; flex: none; box-sizing: border-box;
+    background: #FFF; border: 3px solid #1A1A1A; border-radius: 8px;
+  }
+  .R .frame .bg { position: relative; inset: auto; flex: 1; width: 100%; }
+  .R .frame .bg.empty::after { font-size: 26px; top: 40%; }
+
+  /* Q · A 상자 */
+  .R .qa {
+    position: absolute; width: 76px; height: 76px; box-sizing: border-box;
+    border: 5px solid #1A1A1A; box-shadow: 6px 6px 0 #1A1A1A; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center; color: #FFF;
+    font-family: 'Black Han Sans', sans-serif; font-size: 46px; line-height: 46px;
+  }
+  .R .qa.q { background: var(--accent); }
+  .R .qa.a { background: #1A1A1A; }
+
+  /* 체크 목록 */
+  .R .checks {
+    position: absolute; box-sizing: border-box; background: #F2F2F2; border-radius: 20px;
+    padding: 28px 36px; display: flex; flex-direction: column; justify-content: center; gap: 12px;
+  }
+  .R .checks > div {
+    display: flex; align-items: center; gap: 16px;
+    font-family: 'Gothic A1', sans-serif; font-weight: 700; font-size: 33px;
+    line-height: 46px; color: #333; white-space: pre-wrap;
+  }
+  .R .checks > div::before {
+    content: ''; width: 26px; height: 15px; flex: none; margin-left: 5px;
+    border-left: 5px solid var(--accent); border-bottom: 5px solid var(--accent);
+    transform: rotate(-45deg);
+  }
+
+  /* 수치 카드 */
+  .R .stat {
+    position: absolute; box-sizing: border-box; background: #FFF; border: 5px solid #1A1A1A;
+    box-shadow: 10px 10px 0 #1A1A1A; border-radius: 18px;
+    display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 24px 30px;
+  }
+  .R .stat .k { font-family: 'Do Hyeon', sans-serif; font-size: 32px; line-height: 38px; color: #1A1A1A; }
+  .R .stat .v { font-family: 'Black Han Sans', sans-serif; font-size: 76px; line-height: 84px;
+    letter-spacing: -.76px; color: var(--accent); }
+  .R .stat .n { font-family: 'Gothic A1', sans-serif; font-weight: 800; font-size: 28px;
+    line-height: 36px; color: #555; }
+  .R .stat.mid { align-items: center; text-align: center; padding: 0; gap: 6px; }
+  .R .stat.mid .v { font-size: 52px; line-height: 57px; }
+  .R .stat.mid .n { font-family: 'Do Hyeon', sans-serif; font-weight: 400; font-size: 32px;
+    line-height: 40px; color: #1A1A1A; }
+
+  /* 안내 상자 */
+  .R .note {
+    position: absolute; box-sizing: border-box; background: #F2F2F2; border-radius: 20px;
+    padding: 30px 36px; display: flex; align-items: center;
+    font-family: 'Gothic A1', sans-serif; font-weight: 800; font-size: 32px;
+    line-height: 48px; color: #222; white-space: pre-wrap;
+  }
+
+  /* 상담 바 */
+  .R .cta {
+    position: absolute; box-sizing: border-box; background: var(--accent);
+    box-shadow: 10px 10px 0 #1A1A1A; border-radius: 18px;
+    display: flex; align-items: center; padding: 0 34px; gap: 18px;
+  }
+  .R .cta .lb { font-family: 'Do Hyeon', sans-serif; font-size: 36px; line-height: 45px;
+    color: #FFF; white-space: nowrap; flex: none; }
+  .R .cta .no { flex: 1; text-align: right; font-family: 'Black Han Sans', sans-serif;
+    font-size: 56px; line-height: 56px; letter-spacing: -.56px; color: #FFF; white-space: nowrap; }
+
+  /* 칩 줄 */
+  .R .chiprow { position: absolute; display: flex; gap: 16px; align-items: flex-start; }
+  .R .chiprow > span {
+    display: inline-flex; align-items: center; height: 62px; padding: 0 24px; box-sizing: border-box;
+    background: #F5F8FF; border: 4px solid var(--accent); border-radius: 999px;
+    font-family: 'Do Hyeon', sans-serif; font-size: 32px; line-height: 40px;
+    color: #1A1A1A; white-space: nowrap;
+  }
+
+  /* 제목 상자 (표지) */
+  .R .tbox {
+    position: absolute; box-sizing: border-box; background: #FFF;
+    border: 5px solid var(--accent); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; padding: 6px 25px 2px;
+    font-family: 'Black Han Sans', sans-serif; font-size: 80px; line-height: 120%;
+    letter-spacing: -.7px; color: #1A1A1A; text-align: center; white-space: pre-wrap;
+  }
+
+  /* ── 자리 잡기 ── */
+  .R-cover .s-pill  { left: 50%; transform: translateX(-50%); top: 401px; height: 81px;
+    font-family: 'Black Han Sans', sans-serif; font-size: 40px; line-height: 50px; padding: 0 36px; color: #F5F8FF; }
+  .R-cover .s-title { left: 120px; top: 470px; width: 684px; height: 124px; }
+
+  .R-coverL .s-kicker { left: 82px; top: 150px; width: 700px; height: 76px;
+    font-size: 66px; line-height: 76px; letter-spacing: -.16px; }
+  .R-coverL .s-title  { left: 82px; top: 226px; width: 700px; height: 216px;
+    font-size: 96px; line-height: 108px; letter-spacing: -.16px; }
+  .R-coverL .s-lead   { left: 82px; top: 462px; width: 700px; height: 96px;
+    font-weight: 800; font-size: 33px; line-height: 48px; color: var(--accent); }
+  .R-coverL .s-chips  { left: 82px; top: 588px; }
+  .R-coverL .s-frame  { left: 82px; top: 680px; width: 770px; height: 370px; }
+
+  .R-step .s-pill  { left: 82px; top: 60px; }
+  .R-step .s-title { left: 82px; top: 140px; width: 760px; height: 184px;
+    font-size: 80px; line-height: 92px; letter-spacing: -.8px; }
+  .R-step .s-body1 { left: 82px; top: 366px; width: 770px; height: 153px;
+    font-weight: 800; font-size: 34px; line-height: 51px; color: #222; }
+  .R-step .s-body2 { left: 82px; top: 540px; width: 770px; height: 144px;
+    font-weight: 500; font-size: 32px; line-height: 48px; color: #333; }
+  .R-step .s-frame { left: 82px; top: 716px; width: 770px; height: 400px; }
+
+  .R-qa .s-pill  { left: 82px; top: 60px; }
+  .R-qa .s-q     { left: 82px; top: 146px; }
+  .R-qa .s-ques  { left: 180px; top: 142px; width: 600px; height: 137px;
+    font-size: 58px; line-height: 68px; letter-spacing: -.58px; }
+  .R-qa .s-frame { left: 82px; top: 306px; width: 770px; height: 330px; }
+  .R-qa .s-a     { left: 82px; top: 666px; }
+  .R-qa .s-ans   { left: 180px; top: 670px; width: 600px; height: 102px;
+    font-weight: 800; font-size: 35px; line-height: 51px; color: #222; }
+  .R-qa .s-checks{ left: 82px; top: 796px; width: 770px; height: 221px; }
+
+  .R-stats .s-pill  { left: 82px; top: 60px; }
+  .R-stats .s-title { left: 82px; top: 140px; width: 760px; height: 184px;
+    font-size: 80px; line-height: 92px; letter-spacing: -.8px; }
+  .R-stats .s-st1   { left: 82px;  top: 366px; width: 371px; height: 214px; }
+  .R-stats .s-st2   { left: 481px; top: 366px; width: 371px; height: 214px; }
+  .R-stats .s-note  { left: 82px; top: 630px; width: 770px; height: 156px; }
+  .R-stats .s-checks{ left: 82px; top: 826px; width: 770px; height: 190px; }
+
+  .R-end .s-t1 { left: 82px; top: 62px;  width: 760px; height: 77px;
+    font-size: 66px; line-height: 77px; letter-spacing: -.66px; }
+  .R-end .s-t2 { left: 82px; top: 139px; width: 760px; height: 77px;
+    font-size: 66px; line-height: 77px; letter-spacing: -.66px; color: var(--accent); }
+  .R-end .s-t3 { left: 82px; top: 216px; width: 760px; height: 77px;
+    font-size: 66px; line-height: 77px; letter-spacing: -.66px; }
+  .R-end .s-frame { left: 82px; top: 316px; width: 770px; height: 290px; }
+  .R-end .s-s1 { left: 82px;  top: 638px; width: 242px; height: 146px; }
+  .R-end .s-s2 { left: 346px; top: 638px; width: 242px; height: 146px; }
+  .R-end .s-s3 { left: 610px; top: 638px; width: 242px; height: 146px; }
+  .R-end .s-lead { left: 82px; top: 820px; width: 700px; height: 96px;
+    font-weight: 800; font-size: 33px; line-height: 48px; color: var(--accent); }
+  .R-end .s-cta  { left: 82px; top: 936px; width: 770px; height: 112px; }
+</style>
 <body>
 
 <!-- ═══════════ 왼쪽 패널 — 모든 단계가 한 화면에 ═══════════ -->
@@ -413,10 +660,16 @@ AI가 읽고 장별로 나눠 줍니다."></textarea>
   <!-- ───── ② 디자인 ───── -->
   <div class="step">
     <div class="head"><span class="n">2</span><b>디자인</b></div>
-    <div class="field"><span>포인트 컬러 <em>· 강조 글자·라벨</em></span>
-      <div class="color-row">
+    <div class="field"><span>포인트 컬러 <em>· 강조 글자·테두리·라벨</em></span>
+      <div class="pal-head">
+        <button class="pal-now" id="palNow" type="button" title="눌러서 색 고르기"></button>
+        <span class="pal-hex" id="palHex">#E8B9F8</span>
+        <button class="pal-toggle" id="palToggle" type="button">색 고르기 ▾</button>
+      </div>
+      <div class="pal-grid" id="palGrid"></div>
+      <div class="color-row" id="palCustom">
         <input type="color" id="accentPicker" value="#E8B9F8">
-        <input type="text" id="accentHex" value="#E8B9F8" maxlength="7">
+        <input type="text" id="accentHex" value="#E8B9F8" maxlength="7" placeholder="직접 입력 #RRGGBB">
       </div>
     </div>
     <div class="field"><span>어두운 색 <em>· 라벨 글자·배경</em></span>
@@ -445,37 +698,13 @@ AI가 읽고 장별로 나눠 줍니다."></textarea>
       <span id="cardCount" style="font-size:11px;color:#B0B0BA;font-weight:600"></span></div>
     <div id="cardList"></div>
     <p class="hint" style="margin:9px 0 6px">아래에서 골라 새 장을 넣습니다. 오른쪽 그림의 <b>글자를 눌러 바로 고칠 수</b> 있어요.</p>
-    <div class="lay-grid" id="layGrid"></div>
+    <div id="layFams"></div>
   </div>
 
   <div class="divider"></div>
 
   <!-- ───── 선택한 카드 편집 ───── -->
   <div id="editor"></div>
-
-  <div class="divider"></div>
-
-  <!-- ───── AI 설정 ───── -->
-  <div class="step">
-    <div class="head"><span class="n">AI</span><b>AI 연결</b></div>
-    <div class="field"><span>Gemini API 키 <em>· 원고 분석·이미지 이해·배경 생성</em></span>
-      <input type="password" id="gKey" placeholder="AIza..." autocomplete="off"></div>
-    <div class="two">
-      <div class="field"><span>글 담당 모델</span>
-        <input type="text" id="gTextModel" value="gemini-2.5-flash"></div>
-      <div class="field"><span>그림 담당 모델</span>
-        <input type="text" id="gImgModel" value="gemini-2.5-flash-image"></div>
-    </div>
-    <p class="hint">모델 이름이 바뀌면 여기서 고치면 됩니다.
-      <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">키 만들러 가기</a></p>
-    <div class="field" style="margin-top:10px"><span>배경 그림은 어디서 만들까요</span>
-      <select id="imgProvider">
-        <option value="gemini" selected>Gemini (위 키 사용)</option>
-        <option value="openai">OpenAI (키 따로 입력)</option>
-      </select></div>
-    <div class="field" id="oaiWrap" style="display:none"><span>OpenAI API 키</span>
-      <input type="password" id="oKey" placeholder="sk-..." autocomplete="off"></div>
-  </div>
 
   <div class="divider"></div>
 
@@ -522,7 +751,7 @@ AI가 읽고 장별로 나눠 줍니다."></textarea>
    ══════════════════════════════════════════════════════════════════ */
 const LAYOUTS = {
   cover: {
-    name:'표지', role:'표지', bgN:1, parts:['bg','grad'],
+    name:'표지', role:'표지', fam:'photo', bgN:1, parts:['bg','grad'],
     thumb:[[0,0,100,100,''],[10,58,80,20,'w'],[20,86,60,4,'w']],
     slots:[
       {k:'title', cls:'s-title', label:'제목',      type:'ta', rows:3, guide:'3줄 이내', def:'큰 제목을\n여기에'},
@@ -530,7 +759,7 @@ const LAYOUTS = {
     ]
   },
   bodyL: {
-    name:'본문·큰제목', role:'본문', bgN:1, parts:['bg','grad','foot'],
+    name:'본문·큰제목', fam:'photo', role:'본문', bgN:1, parts:['bg','grad','foot'],
     thumb:[[0,0,100,100,''],[8,52,84,16,'w'],[8,74,84,11,'w'],[0,94,100,6,'w']],
     slots:[
       {k:'title', cls:'s-title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'핵심 메시지'},
@@ -538,7 +767,7 @@ const LAYOUTS = {
     ]
   },
   bodyM: {
-    name:'본문·중제목', role:'본문', bgN:1, parts:['bg','grad','foot'],
+    name:'본문·중제목', fam:'photo', role:'본문', bgN:1, parts:['bg','grad','foot'],
     thumb:[[0,0,100,100,''],[8,55,84,13,'w'],[8,74,84,11,'w'],[0,94,100,6,'w']],
     slots:[
       {k:'title', cls:'s-title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:"마음이 놓이는 곳,\n'우리 공간'"},
@@ -546,7 +775,7 @@ const LAYOUTS = {
     ]
   },
   qa: {
-    name:'질문·답변', role:'본문', bgN:1, parts:['bg','grad','foot'],
+    name:'질문·답변', fam:'photo', role:'본문', bgN:1, parts:['bg','grad','foot'],
     thumb:[[0,0,100,100,''],[43,57,14,5,'w'],[16,67,68,6,'a'],[8,78,84,11,'w'],[0,94,100,6,'w']],
     slots:[
       {k:'badge', cls:'s-badge pill white ctr', label:'번호', type:'tx', guide:'01, Q1 등', def:'01'},
@@ -555,21 +784,21 @@ const LAYOUTS = {
     ]
   },
   color: {
-    name:'컬러블록', role:'본문', bgN:1, parts:['cblock','foot'],
+    name:'컬러블록', fam:'photo', role:'본문', bgN:1, parts:['cblock','foot'],
     thumb:[[0,0,100,65,'a'],[8,70,84,18,'w'],[0,94,100,6,'w']],
     slots:[
       {k:'body', cls:'s-body', label:'본문', type:'ta', rows:5, guide:'5줄 권장', def:'사진에 대한 설명을 적습니다.\n이 자리는 다섯 줄까지 들어가서\n조금 긴 이야기도 담을 수 있습니다.'}
     ]
   },
   end: {
-    name:'마무리·명함', role:'마무리', bgN:1, parts:['bg','headband','whitecard'],
+    name:'마무리·명함', fam:'photo', role:'마무리', bgN:1, parts:['bg','headband','whitecard'],
     thumb:[[0,0,100,12,'a'],[6,72,88,22,'w']],
     slots:[
       {k:'msg', cls:'s-msg', label:'마무리 문구', type:'ta', rows:3, guide:'3줄 이내', def:'찾아주셔서 감사합니다.\n언제든 편하게 문의해 주세요.'}
     ]
   },
   split2: {
-    name:'2분할', role:'본문', bgN:2, parts:['half2','foot'],
+    name:'2분할', fam:'photo', role:'본문', bgN:2, parts:['half2','foot'],
     thumb:[[0,0,100,49,''],[0,50,100,44,'d'],[30,27,40,5,'w'],[30,82,40,5,'a'],[0,94,100,6,'w']],
     slots:[
       {k:'lab1', cls:'s-lab1 pill white ctr', label:'위쪽 라벨',  type:'tx', def:'첫 번째'},
@@ -577,7 +806,7 @@ const LAYOUTS = {
     ]
   },
   split3: {
-    name:'3분할+목록', role:'표지', bgN:3, parts:['third3','dark'],
+    name:'3분할+목록', fam:'photo', role:'표지', bgN:3, parts:['third3','dark'],
     thumb:[[0,0,100,32,''],[0,33,100,32,'d'],[0,66,100,34,''],[8,13,40,5,'a'],[8,21,40,5,'w'],[8,29,30,5,'a'],[12,58,76,18,'w'],[20,86,60,4,'w']],
     slots:[
       {k:'lab1',  cls:'s-lab1 pill', label:'라벨 1', type:'tx', def:'첫째 항목'},
@@ -588,7 +817,7 @@ const LAYOUTS = {
     ]
   },
   sum: {
-    name:'정리', role:'정리', bgN:0, parts:['solid'],
+    name:'정리', fam:'photo', role:'정리', bgN:0, parts:['solid'],
     thumb:[[0,0,100,100,'d'],[22,11,56,5,'w'],[16,24,68,6,'a'],[16,34,68,6,'a'],[16,44,68,6,'a'],[18,57,64,9,'w'],[10,73,80,5,'a']],
     slots:[
       {k:'lead', cls:'s-lead', label:'들어가는 말', type:'ta', rows:2, def:'정리하면 이렇습니다.'},
@@ -600,6 +829,171 @@ const LAYOUTS = {
     ]
   }
 };
+
+/* ══════════════════════════════════════════════════════════════════
+   레트로(창) 템플릿 — 코팩익스프레스 카드뉴스에서 뽑은 구조
+
+   앞의 9종과 달리 사진이 배경 전체를 덮지 않고 '액자' 안에 들어간다.
+   바깥 테두리·강조색·체크표시가 모두 --accent 하나를 따라간다.
+   구조가 복잡해서 parts 조립 대신 레이아웃마다 html() 을 둔다.
+   ══════════════════════════════════════════════════════════════════ */
+function sl(k, cls, v) {
+  return '<div class="' + cls + '" data-k="' + k + '" contenteditable="true">' + esc(v) + '</div>';
+}
+function retroShell(inner) {
+  return '<div class="win">'
+    + '<div class="tbar"><span class="nm">' + esc(String(S.theme.headline || '').replace(/\n/g, ' ')) + '</span>'
+    + '<span class="dot"></span><span class="dot"></span><span class="dot"></span></div>'
+    + '<div class="wbody"><div class="cont">' + inner + '</div>'
+    + '<div class="sbar"><span class="ar up"><i></i></span><span class="grip"></span>'
+    + '<span class="ar dn"><i></i></span></div></div></div>';
+}
+function frameEl(c, n, cls) {
+  return '<div class="frame ' + cls + '">'
+    + '<div class="fbar">' + sl('fname', 'fn', c.f.fname || 'photo.jpg')
+    + '<span class="fdot"></span><span class="fdot"></span><span class="fdot"></span></div>'
+    + bgDiv(c, null, n) + '</div>';
+}
+function checksEl(c, cls, n) {
+  let h = '<div class="checks ' + cls + '">';
+  for (let i = 1; i <= n; i++) h += sl('chk' + i, '', c.f['chk' + i]);
+  return h + '</div>';
+}
+function statEl(c, cls, pre, mid) {
+  let h = '<div class="stat ' + (mid ? 'mid ' : '') + cls + '">';
+  if (!mid) h += sl(pre + 'k', 'k', c.f[pre + 'k']);
+  h += sl(pre + 'v', 'v', c.f[pre + 'v']) + sl(pre + 'n', 'n', c.f[pre + 'n']);
+  return h + '</div>';
+}
+
+Object.assign(LAYOUTS, {
+  rCover: {
+    cls:'R-cover',
+    name:'창·표지', fam:'retro', role:'표지', bgN:0,
+    thumb:[[0,0,100,100,'w'],[4,3,92,94,'d'],[4,3,92,6,'w'],[22,28,56,7,'d'],[12,38,76,12,'w']],
+    slots:[
+      {k:'pill',  label:'작은 머리말', type:'tx', def:'코팩익스프레스'},
+      {k:'title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'겨울철 결로 예방법'}
+    ],
+    html: c => retroShell(sl('pill','rpill s-pill',c.f.pill) + sl('title','tbox s-title',c.f.title))
+  },
+  rCoverL: {
+    cls:'R-coverL',
+    name:'창·표지(왼쪽)', fam:'retro', role:'표지', bgN:1,
+    thumb:[[0,0,100,100,'w'],[4,3,92,94,'d'],[4,3,92,6,'w'],[8,12,50,6,'w'],[8,20,55,14,'w'],[8,40,60,4,'a'],[8,48,70,5,'a'],[8,57,76,32,'w']],
+    slots:[
+      {k:'kicker', label:'윗줄', type:'tx', def:'천안포장이사,'},
+      {k:'title',  label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'이런 걱정\n있으신가요?'},
+      {k:'lead',   label:'설명', type:'ta', rows:2, def:'30년 경력 코팩익스프레스가\n고객님의 이사 걱정을 덜어드리겠습니다.'},
+      {k:'chip1',  label:'칩 1', type:'tx', def:'물품 파손'},
+      {k:'chip2',  label:'칩 2', type:'tx', def:'이사 후 정리'},
+      {k:'chip3',  label:'칩 3', type:'tx', def:'추가 비용'},
+      {k:'fname',  label:'사진 이름', type:'tx', def:'korpac_express.jpg'}
+    ],
+    html: c => retroShell(
+      sl('kicker','hh s-kicker',c.f.kicker) + sl('title','hh s-title',c.f.title) +
+      sl('lead','gg s-lead',c.f.lead) +
+      '<div class="chiprow s-chips">' + [1,2,3].map(n =>
+        '<span data-k="chip' + n + '" contenteditable="true">' + esc(c.f['chip'+n]) + '</span>').join('') + '</div>' +
+      frameEl(c, 0, 's-frame'))
+  },
+  rStep: {
+    cls:'R-step',
+    name:'창·단계', fam:'retro', role:'본문', bgN:1,
+    thumb:[[0,0,100,100,'w'],[4,3,92,94,'d'],[4,3,92,6,'w'],[8,11,22,5,'d'],[8,19,62,12,'w'],[8,36,76,8,'w'],[8,49,76,7,'w'],[8,62,76,28,'w']],
+    slots:[
+      {k:'pill',  label:'라벨', type:'tx', def:'방법 01'},
+      {k:'title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'가구는 벽에서\n10cm 띄우기'},
+      {k:'body1', label:'본문 (굵게)', type:'ta', rows:3, guide:'3줄 권장', def:'특히 옷장, 침대, 수납장처럼 벽면을 넓게 가리는\n가구는 외벽에서 최소 10cm 정도 띄워 주세요.'},
+      {k:'body2', label:'본문 (보통)', type:'ta', rows:3, guide:'3줄 권장', def:'벽과 가구 사이에 공간이 있어야 공기가 원활하게\n순환하고 습기가 고이는 것을 줄일 수 있습니다.'},
+      {k:'fname', label:'사진 이름', type:'tx', def:'tip_01.jpg'}
+    ],
+    html: c => retroShell(
+      sl('pill','rpill s-pill',c.f.pill) + sl('title','hh s-title',c.f.title) +
+      sl('body1','gg s-body1',c.f.body1) + sl('body2','gg s-body2',c.f.body2) +
+      frameEl(c, 0, 's-frame'))
+  },
+  rQa: {
+    cls:'R-qa',
+    name:'창·질문답변', fam:'retro', role:'본문', bgN:1,
+    thumb:[[0,0,100,100,'w'],[4,3,92,94,'d'],[4,3,92,6,'w'],[8,11,20,5,'d'],[8,19,8,7,'a'],[20,19,58,9,'w'],[8,32,76,22,'w'],[8,58,8,7,'d'],[20,58,58,7,'w'],[8,70,76,20,'w']],
+    slots:[
+      {k:'pill',  label:'라벨', type:'tx', def:'안전한 포장'},
+      {k:'ques',  label:'질문', type:'ta', rows:2, guide:'2줄 이내', def:'이사하다 물건이\n파손되면 어떡하죠?'},
+      {k:'ans',   label:'답변', type:'ta', rows:2, guide:'2줄 이내', def:'물품별 전용 포장재로 보호하고,\n사고 발생 시 책임 있게 대응합니다.'},
+      {k:'chk1',  label:'체크 1', type:'tx', def:'가구·가전 전용 보호 커버'},
+      {k:'chk2',  label:'체크 2', type:'tx', def:'그릇 에어캡 포장 및 바닥 보양'},
+      {k:'chk3',  label:'체크 3', type:'tx', def:'적재물 배상책임보험 가입'},
+      {k:'fname', label:'사진 이름', type:'tx', def:'packing_site.jpg'}
+    ],
+    html: c => retroShell(
+      sl('pill','rpill s-pill',c.f.pill) +
+      '<div class="qa q s-q">Q</div>' + sl('ques','hh s-ques',c.f.ques) +
+      frameEl(c, 0, 's-frame') +
+      '<div class="qa a s-a">A</div>' + sl('ans','gg s-ans',c.f.ans) +
+      checksEl(c, 's-checks', 3))
+  },
+  rStats: {
+    cls:'R-stats',
+    name:'창·수치', fam:'retro', role:'본문', bgN:0,
+    thumb:[[0,0,100,100,'w'],[4,3,92,94,'d'],[4,3,92,6,'w'],[8,11,20,5,'d'],[8,19,62,12,'w'],[8,35,38,17,'w'],[50,35,38,17,'w'],[8,56,76,12,'w'],[8,72,76,16,'w']],
+    slots:[
+      {k:'pill',  label:'라벨', type:'tx', def:'방법 02'},
+      {k:'title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'실내 온도와\n습도 관리하기'},
+      {k:'st1k',  label:'카드1 이름', type:'tx', def:'실내 온도'},
+      {k:'st1v',  label:'카드1 숫자', type:'tx', def:'20~22℃'},
+      {k:'st1n',  label:'카드1 설명', type:'tx', def:'정도로 유지'},
+      {k:'st2k',  label:'카드2 이름', type:'tx', def:'습도'},
+      {k:'st2v',  label:'카드2 숫자', type:'tx', def:'40~50%'},
+      {k:'st2n',  label:'카드2 설명', type:'tx', def:'목표로 관리'},
+      {k:'note',  label:'안내 문구', type:'ta', rows:2, def:'난방을 지나치게 높이면 차가운 벽면과\n실내 공기의 온도 차이가 커질 수 있습니다.'},
+      {k:'chk1',  label:'체크 1', type:'tx', def:'가습기 사용 시 습도계 함께 확인'},
+      {k:'chk2',  label:'체크 2', type:'tx', def:'실내 건조 시 제습기·환풍기 활용'}
+    ],
+    html: c => retroShell(
+      sl('pill','rpill s-pill',c.f.pill) + sl('title','hh s-title',c.f.title) +
+      statEl(c, 's-st1', 'st1') + statEl(c, 's-st2', 'st2') +
+      sl('note','note s-note',c.f.note) + checksEl(c, 's-checks', 2))
+  },
+  rEnd: {
+    cls:'R-end',
+    name:'창·마무리', fam:'retro', role:'마무리', bgN:1,
+    thumb:[[0,0,100,100,'w'],[4,3,92,94,'d'],[4,3,92,6,'w'],[8,10,60,5,'w'],[8,17,50,5,'a'],[8,24,45,5,'w'],[8,32,76,20,'w'],[8,55,22,11,'w'],[32,55,22,11,'w'],[56,55,22,11,'w'],[8,70,60,5,'a'],[8,78,76,9,'a']],
+    slots:[
+      {k:'t1', label:'제목 1줄', type:'tx', def:'이사의 시작부터 마무리까지,'},
+      {k:'t2', label:'제목 2줄 (강조색)', type:'tx', def:'코팩익스프레스가'},
+      {k:'t3', label:'제목 3줄', type:'tx', def:'책임지겠습니다.'},
+      {k:'s1v', label:'수치 1', type:'tx', def:'30년'},
+      {k:'s1n', label:'수치 1 설명', type:'tx', def:'현장 경력'},
+      {k:'s2v', label:'수치 2', type:'tx', def:'100%'},
+      {k:'s2n', label:'수치 2 설명', type:'tx', def:'직영팀 운영'},
+      {k:'s3v', label:'수치 3', type:'tx', def:'정식 허가'},
+      {k:'s3n', label:'수치 3 설명', type:'tx', def:'관허업체'},
+      {k:'lead', label:'설명', type:'ta', rows:2, def:'천안·아산·평택 포장이사\n포장부터 운반, 정리까지 함께합니다.'},
+      {k:'ctaLabel', label:'상담 라벨', type:'tx', def:'방문 견적 상담'},
+      {k:'ctaNo',    label:'연락처', type:'tx', def:'010-0000-0000'},
+      {k:'fname',    label:'사진 이름', type:'tx', def:'our_team.jpg'}
+    ],
+    html: c => retroShell(
+      sl('t1','hh s-t1',c.f.t1) + sl('t2','hh s-t2',c.f.t2) + sl('t3','hh s-t3',c.f.t3) +
+      frameEl(c, 0, 's-frame') +
+      statEl(c, 's-s1', 's1', true) + statEl(c, 's-s2', 's2', true) + statEl(c, 's-s3', 's3', true) +
+      sl('lead','gg s-lead',c.f.lead) +
+      '<div class="cta s-cta">' + sl('ctaLabel','lb',c.f.ctaLabel) + sl('ctaNo','no',c.f.ctaNo) + '</div>')
+  }
+});
+
+/* 포인트 컬러 팔레트 (첨부 이미지에서 추출한 36색) */
+const PALETTE = ["#E8C0BD","#E1C3C0","#E2BEAD","#DC8C82","#BE695C","#9A4F4E","#80432F",
+"#DAC3A3","#B38D73","#8F837B","#735F4C","#8D6646","#704435","#5D493F",
+"#7EB2DA","#3688BC","#0867A0","#5685A0","#185880","#284463",
+"#C3C867","#9FAB77","#ADBD6A","#518736","#428146","#147155","#105850",
+"#95C2B5","#2BA4A4","#72B6B9","#0C7B8F","#489497",
+"#CDAFCA","#B1B3D6","#8980A2","#9A80AF"];
+
+/* 글자 크기를 자동으로 줄일 대상 */
+const FIT_SEL = '.tx, .pill, .hh, .gg, .dh, .tbox, .note, .checks > div, .stat .k, .stat .v, .stat .n';
+
 const LAYOUT_KEYS = Object.keys(LAYOUTS);
 const PURPOSES = ['정보 전달','홍보','모집','후기','공지'];
 
@@ -644,6 +1038,13 @@ function markDiv(cls) {
 
 function buildCardEl(c, i) {
   const L = LAYOUTS[c.layout];
+  if (L.html) {
+    const el0 = document.createElement('div');
+    el0.className = 'card visible R ' + L.cls;
+    el0.id = 'card-' + i;
+    el0.innerHTML = L.html(c);
+    return el0;
+  }
   const p = L.parts;
   let h = '';
 
@@ -723,7 +1124,7 @@ function renderAll() {
     w.appendChild(box); w.appendChild(lab);
     w.addEventListener('click', () => { S.sel = i; renderAll(); });
     strip.appendChild(w);
-    mini.querySelectorAll('.tx, .pill').forEach(fitText);
+    mini.querySelectorAll(FIT_SEL).forEach(fitText);
   });
 
   const big = buildCardEl(S.cards[S.sel], S.sel);
@@ -736,7 +1137,8 @@ function renderAll() {
       refreshThumb(S.sel);
     });
   });
-  big.querySelectorAll('.tx, .pill').forEach(fitText);
+  big.querySelectorAll(FIT_SEL).forEach(fitText);
+  hookDrag(big);
 
   document.getElementById('cardCount').textContent = '총 ' + S.cards.length + '장';
   fitBig();
@@ -752,7 +1154,7 @@ function refreshThumb(i) {
   const mini = buildCardEl(S.cards[i], 'tn' + i);
   mini.querySelectorAll('[contenteditable]').forEach(e => e.removeAttribute('contenteditable'));
   box.appendChild(mini);
-  mini.querySelectorAll('.tx, .pill').forEach(fitText);
+  mini.querySelectorAll(FIT_SEL).forEach(fitText);
 }
 
 function fitBig() {
@@ -796,25 +1198,37 @@ function renderCardList() {
 }
 
 /* ══════════ 모양 고르기 ══════════ */
+const FAMS = [
+  { id:'photo', name:'사진 배경형 · 9종' },
+  { id:'retro', name:'창 프레임형 · 6종' }
+];
 function renderLayoutGrid() {
-  const g = document.getElementById('layGrid');
-  g.innerHTML = '';
-  LAYOUT_KEYS.forEach(k => {
-    const L = LAYOUTS[k];
-    const b = document.createElement('button');
-    b.className = 'lay-card';
-    b.title = L.name + ' — ' + L.role;
-    b.innerHTML = '<div class="lay-thumb">' +
-      L.thumb.map(t => '<i class="' + (t[4] || '') + '" style="left:' + t[0] + '%;top:' + t[1]
-        + '%;width:' + t[2] + '%;height:' + t[3] + '%"></i>').join('') +
-      '</div><b>' + L.name + '</b>';
-    b.addEventListener('click', () => {
-      S.cards.splice(S.sel + 1, 0, newCard(k));
-      S.sel = Math.min(S.sel + 1, S.cards.length - 1);
-      if (S.cards.length === 1) S.sel = 0;
-      renderAll();
+  const box = document.getElementById('layFams');
+  box.innerHTML = '';
+  FAMS.forEach(fam => {
+    const keys = Object.keys(LAYOUTS).filter(k => (LAYOUTS[k].fam || 'photo') === fam.id);
+    if (!keys.length) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'fam';
+    wrap.innerHTML = '<h4>' + fam.name + '</h4><div class="lay-grid"></div>';
+    const g = wrap.querySelector('.lay-grid');
+    keys.forEach(k => {
+      const L = LAYOUTS[k];
+      const b = document.createElement('button');
+      b.className = 'lay-card';
+      b.title = L.name + ' — ' + L.role;
+      b.innerHTML = '<div class="lay-thumb">' +
+        L.thumb.map(t => '<i class="' + (t[4] || '') + '" style="left:' + t[0] + '%;top:' + t[1]
+          + '%;width:' + t[2] + '%;height:' + t[3] + '%"></i>').join('') +
+        '</div><b>' + L.name + '</b>';
+      b.addEventListener('click', () => {
+        S.cards.splice(S.sel + 1, 0, newCard(k));
+        S.sel = S.cards.length === 1 ? 0 : Math.min(S.sel + 1, S.cards.length - 1);
+        renderAll();
+      });
+      g.appendChild(b);
     });
-    g.appendChild(b);
+    box.appendChild(wrap);
   });
 }
 
@@ -862,14 +1276,7 @@ function renderEditor() {
   }
 
   if (L.bgN > 0) {
-    h += '<div class="field" style="margin-top:12px"><span>AI로 배경 만들기</span>'
-       + '<select id="aiStyle"><option value="photo">실사 사진</option>'
-       + '<option value="film">필름 감성</option><option value="minimal">미니멀</option>'
-       + '<option value="illust">일러스트</option><option value="watercolor">수채화</option>'
-       + '<option value="3d">3D 렌더</option></select>'
-       + '<textarea id="aiPrompt" rows="2" style="margin-top:6px" placeholder="어떤 장면을 그릴까요? 한국어로 써도 됩니다."></textarea>'
-       + '<button class="ai-btn" id="aiGo">AI로 배경 만들기</button>'
-       + '<p id="aiStatus" class="hint"></p></div>';
+    h += '<p class="hint">오른쪽 그림에서 <b>사진을 끌어 옮길 수</b> 있어요. 막대로도 맞출 수 있습니다.</p>';
   }
   h += '</div>';
   box.innerHTML = h;
@@ -906,8 +1313,56 @@ function renderEditor() {
       renderAll();
     });
   });
-  const go = document.getElementById('aiGo');
-  if (go) go.addEventListener('click', () => makeBackground(go));
+}
+
+/* ══════════ 팔레트 — 평소엔 지금 색 하나, 누르면 전부 ══════════ */
+function renderPalette() {
+  const grid = document.getElementById('palGrid');
+  grid.innerHTML = '';
+  PALETTE.forEach(hex => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.style.background = hex;
+    b.title = hex;
+    b.className = hex.toUpperCase() === S.theme.accent.toUpperCase() ? 'on' : '';
+    b.addEventListener('click', () => setAccent(hex));
+    grid.appendChild(b);
+  });
+  document.getElementById('palNow').style.background = S.theme.accent;
+  document.getElementById('palHex').textContent = S.theme.accent.toUpperCase();
+}
+
+/* ══════════ 사진을 끌어서 옮기기 ══════════ */
+function hookDrag(cardEl) {
+  cardEl.querySelectorAll('.bg[data-s]').forEach(bg => {
+    const n = +bg.dataset.s;
+    if (n < 0) return;
+    bg.style.cursor = 'grab';
+    bg.addEventListener('pointerdown', e => {
+      const st = S.cards[S.sel].bgs[n];
+      if (!st || !st.img) return;
+      e.preventDefault();
+      bg.setPointerCapture(e.pointerId);
+      bg.style.cursor = 'grabbing';
+      const box = bg.getBoundingClientRect();
+      const sx = e.clientX, sy = e.clientY, ox = st.x, oy = st.y;
+      const move = ev => {
+        /* 화면에서 끈 거리를 배경 위치 비율(0~100)로 바꾼다 */
+        st.x = Math.max(0, Math.min(100, ox - (ev.clientX - sx) / box.width * 100));
+        st.y = Math.max(0, Math.min(100, oy - (ev.clientY - sy) / box.height * 100));
+        bg.style.backgroundPosition = st.x + '% ' + st.y + '%';
+      };
+      const up = ev => {
+        bg.releasePointerCapture(e.pointerId);
+        bg.style.cursor = 'grab';
+        bg.removeEventListener('pointermove', move);
+        bg.removeEventListener('pointerup', up);
+        renderAll();
+      };
+      bg.addEventListener('pointermove', move);
+      bg.addEventListener('pointerup', up);
+    });
+  });
 }
   /* ══════════════════════════════════════════════════════════════
      PNG 내보내기
@@ -931,7 +1386,13 @@ function renderEditor() {
   }
 
   /* ── 웹폰트를 data URI 로 내장 (실제 쓰인 글자의 서브셋만) ── */
-  const SUBSET_CSS_URL = 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css';
+  /* 미리보기에서 쓰는 모든 웹폰트. PNG 로 내보낼 때 실제 쓰인 글자의
+     조각만 base64 로 박아 넣는다. 레트로 템플릿은 구글 폰트를 쓴다. */
+  const FONT_CSS_URLS = [
+    'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css',
+    'https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gothic+A1:wght@500;700;800;900&display=swap'
+  ];
+  const SUBSET_CSS_URL = FONT_CSS_URLS[0];
   const FULL_FONT_URL  = 'https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/woff2/PretendardVariable.woff2';
   const sliceCache = new Map();   // url -> base64
   let faceList = null;            // [{url, range, ranges}]
@@ -974,49 +1435,64 @@ function renderEditor() {
   }
   async function getFaceList() {
     if (faceList) return faceList;
-    const css = await (await fetch(SUBSET_CSS_URL, { cache: 'force-cache' })).text();
     const list = [];
-    const reFace = /@font-face\s*\{([^}]*)\}/g;
-    let m;
-    while ((m = reFace.exec(css))) {
-      const body = m[1];
-      const mu = body.match(/url\(([^)]+)\)/);
-      const mr = body.match(/unicode-range\s*:\s*([^;}]+)/i);
-      if (!mu || !mr) continue;
-      const raw = mu[1].replace(/["']/g, '').trim();
-      list.push({
-        url: new URL(raw, SUBSET_CSS_URL).href,
-        range: mr[1].trim(),
-        ranges: parseRanges(mr[1])
-      });
+    for (const cssUrl of FONT_CSS_URLS) {
+      let css;
+      try { css = await (await fetch(cssUrl, { cache: 'force-cache' })).text(); }
+      catch (e) { continue; }
+      const reFace = /@font-face\s*\{([^}]*)\}/g;
+      let m;
+      while ((m = reFace.exec(css))) {
+        const body = m[1];
+        const mu = body.match(/url\(([^)]+)\)/);
+        const mr = body.match(/unicode-range\s*:\s*([^;}]+)/i);
+        if (!mu) continue;
+        const mf = body.match(/font-family\s*:\s*([^;}]+)/i);
+        const mw = body.match(/font-weight\s*:\s*([^;}]+)/i);
+        const ms = body.match(/font-style\s*:\s*([^;}]+)/i);
+        const raw = mu[1].replace(/["']/g, '').trim();
+        list.push({
+          url: new URL(raw, cssUrl).href,
+          family: mf ? mf[1].trim() : "'Pretendard Variable'",
+          weight: mw ? mw[1].trim() : '400',
+          style:  ms ? ms[1].trim() : 'normal',
+          range:  mr ? mr[1].trim() : null,
+          ranges: mr ? parseRanges(mr[1]) : null
+        });
+      }
     }
-    if (!list.length) throw new Error('subset css parse failed');
+    if (!list.length) throw new Error('폰트 목록을 읽지 못했습니다');
     faceList = list;
     return faceList;
   }
+
   /* 카드에 실제로 쓰인 글자를 커버하는 조각만 골라 내장 */
   async function buildFontCSS(text) {
     const codes = new Set();
     for (const ch of text) codes.add(ch.codePointAt(0));
     codes.add(32);
+    const covers = f => {
+      if (!f.ranges) return true;   // unicode-range 가 없으면 전체 담당
+      for (const r of f.ranges) for (const c of codes) if (c >= r[0] && c <= r[1]) return true;
+      return false;
+    };
     try {
       const faces = await getFaceList();
-      const needed = faces.filter(f =>
-        f.ranges.some(r => { for (const c of codes) if (c >= r[0] && c <= r[1]) return true; return false; })
-      );
-      if (!needed.length) throw new Error('no matching subset');
+      const needed = faces.filter(covers);
+      if (!needed.length) throw new Error('맞는 조각 없음');
       const parts = await Promise.all(needed.map(async f =>
-        "@font-face{font-family:'Pretendard Variable';font-style:normal;font-weight:45 920;" +
-        "src:url(data:font/woff2;base64," + (await fetchBase64(f.url)) + ") format('woff2');" +
-        "unicode-range:" + f.range + "}"
+        '@font-face{font-family:' + f.family + ';font-style:' + f.style + ';'
+        + 'font-weight:' + f.weight + ';'
+        + 'src:url(data:font/woff2;base64,' + (await fetchBase64(f.url)) + ") format('woff2');"
+        + (f.range ? 'unicode-range:' + f.range + ';' : '') + '}'
       ));
       return parts.join('\n');
     } catch (e) {
-      /* 서브셋 실패 → 전체 가변 폰트 한 번에 내장 (약 2MB) */
+      /* 조각 내려받기에 실패하면 Pretendard 전체만이라도 박아 넣는다 */
       if (fullFontCSS) return fullFontCSS;
       const b64 = await fetchBase64(FULL_FONT_URL);
-      fullFontCSS = "@font-face{font-family:'Pretendard Variable';font-style:normal;" +
-                    "font-weight:45 920;src:url(data:font/woff2;base64," + b64 + ") format('woff2')}";
+      fullFontCSS = "@font-face{font-family:'Pretendard Variable';font-style:normal;"
+                  + "font-weight:45 920;src:url(data:font/woff2;base64," + b64 + ") format('woff2')}";
       return fullFontCSS;
     }
   }
@@ -1028,7 +1504,7 @@ function renderEditor() {
     clone.classList.add('visible');
     /* 글자 줄이기는 실제 크기에서 재야 정확하다. 변형 없는 무대에 잠깐 올렸다 뗀다. */
     stage0.appendChild(clone);
-    clone.querySelectorAll('.tx, .pill').forEach(fitText);
+    clone.querySelectorAll(FIT_SEL).forEach(fitText);
     stage0.removeChild(clone);
     clone.querySelectorAll('[contenteditable]').forEach(el => {
       el.removeAttribute('contenteditable');
@@ -1303,20 +1779,39 @@ function applyTheme() {
   document.documentElement.style.setProperty('--accent', S.theme.accent);
   document.documentElement.style.setProperty('--dark', S.theme.dark);
 }
-function hookColor(pickId, hexId, key) {
-  const pick = document.getElementById(pickId), hex = document.getElementById(hexId);
-  const set = v => {
-    if (!/^#[0-9A-Fa-f]{6}$/.test(v)) return;
-    S.theme[key] = v; pick.value = v; hex.value = v.toUpperCase();
-    applyTheme(); renderAll();
-  };
-  pick.addEventListener('input', e => set(e.target.value));
-  hex.addEventListener('input', e => {
-    let v = e.target.value.trim(); if (v && v[0] !== '#') v = '#' + v; set(v);
-  });
+function setAccent(v) {
+  if (!/^#[0-9A-Fa-f]{6}$/.test(v)) return;
+  S.theme.accent = v;
+  document.getElementById('accentPicker').value = v;
+  document.getElementById('accentHex').value = v.toUpperCase();
+  applyTheme(); renderPalette(); renderAll();
 }
-hookColor('accentPicker', 'accentHex', 'accent');
-hookColor('darkPicker', 'darkHex', 'dark');
+function setDark(v) {
+  if (!/^#[0-9A-Fa-f]{6}$/.test(v)) return;
+  S.theme.dark = v;
+  document.getElementById('darkPicker').value = v;
+  document.getElementById('darkHex').value = v.toUpperCase();
+  applyTheme(); renderAll();
+}
+document.getElementById('accentPicker').addEventListener('input', e => setAccent(e.target.value));
+document.getElementById('accentHex').addEventListener('input', e => {
+  let v = e.target.value.trim(); if (v && v[0] !== '#') v = '#' + v; setAccent(v);
+});
+document.getElementById('darkPicker').addEventListener('input', e => setDark(e.target.value));
+document.getElementById('darkHex').addEventListener('input', e => {
+  let v = e.target.value.trim(); if (v && v[0] !== '#') v = '#' + v; setDark(v);
+});
+
+/* 팔레트 펼치기 */
+['palNow', 'palToggle'].forEach(id => {
+  document.getElementById(id).addEventListener('click', () => {
+    const g = document.getElementById('palGrid'), c = document.getElementById('palCustom');
+    const open = !g.classList.contains('open');
+    g.classList.toggle('open', open);
+    c.classList.toggle('open', open);
+    document.getElementById('palToggle').textContent = open ? '접기 ▴' : '색 고르기 ▾';
+  });
+});
 
 document.getElementById('headline').addEventListener('input', e => {
   S.theme.headline = e.target.value; renderAll();
@@ -1368,22 +1863,6 @@ document.getElementById('shotInput').addEventListener('change', e => {
     r.readAsDataURL(f);
   });
   e.target.value = '';
-});
-
-/* ══════════ 키 보관 (이 브라우저에만) ══════════ */
-function keyStore(id, name) {
-  const el = document.getElementById(id);
-  try { const v = localStorage.getItem(name); if (v) el.value = v; } catch (e) {}
-  el.addEventListener('input', () => {
-    try { localStorage.setItem(name, el.value.trim()); } catch (e) {}
-  });
-}
-keyStore('gKey', 'cardnews.gemini.key');
-keyStore('oKey', 'cardnews.openai.key');
-keyStore('gTextModel', 'cardnews.gemini.textmodel');
-keyStore('gImgModel', 'cardnews.gemini.imgmodel');
-document.getElementById('imgProvider').addEventListener('change', e => {
-  document.getElementById('oaiWrap').style.display = e.target.value === 'openai' ? '' : 'none';
 });
 
 function note(boxId, kind, html) {
@@ -1471,40 +1950,27 @@ script
   ].join('\n');
 }
 
-/* 키를 직접 넣었으면 브라우저에서 바로 부르고,
-   비워 뒀으면 서버(/api/gemini)가 쥐고 있는 키로 중계한다.
-   Vercel 에 GEMINI_API_KEY 를 넣어 두면 사용자는 키 없이 쓸 수 있다. */
-async function callGemini(model, body) {
-  const key = document.getElementById('gKey').value.trim();
-  let res;
-  if (key) {
-    res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/'
-        + encodeURIComponent(model) + ':generateContent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      body: JSON.stringify(body)
-    });
-  } else {
-    if (location.protocol === 'file:') {
-      throw new Error('파일을 직접 열었을 때는 Gemini API 키를 입력해야 합니다. '
-        + '키 없이 쓰려면 인터넷에 올린 주소로 접속하세요.');
-    }
-    res = await fetch('/api/gemini', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, body })
-    });
+/* API 키는 서버(Vercel 환경변수)에만 있다. 브라우저는 키를 모른다. */
+async function callGemini(kind, body) {
+  if (location.protocol === 'file:') {
+    throw new Error('파일을 직접 열었을 때는 AI 기능을 쓸 수 없습니다. '
+      + '인터넷에 올린 주소로 접속해 주세요.');
   }
+  const res = await fetch('/api/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ kind, body })
+  });
   const json = await res.json().catch(() => null);
   if (!res.ok) {
     const msg = json && json.error && json.error.message ? json.error.message : ('HTTP ' + res.status);
-    throw new Error(explainGemini(res.status, msg, model));
+    throw new Error(explainGemini(res.status, msg));
   }
   return json;
 }
 
 /* 사진을 그대로 보내면 용량이 커서 서버가 거부한다.
-   AI 에 보낼 때만 긴 변 1024px JPEG 로 줄인다. 카드 배경은 원본을 쓴다. */
+   AI 에 보낼 때만 긴 변 1024px JPEG 로 줄인다. 카드에는 원본을 쓴다. */
 function shrink(dataUri, maxPx) {
   return new Promise(resolve => {
     const img = new Image();
@@ -1519,13 +1985,14 @@ function shrink(dataUri, maxPx) {
     img.src = dataUri;
   });
 }
-function explainGemini(status, msg, model) {
-  if (status === 400 && /API key not valid/i.test(msg)) return 'Gemini API 키가 올바르지 않습니다. 키를 다시 확인해 주세요.';
+
+function explainGemini(status, msg) {
+  if (status === 400 && /API key not valid/i.test(msg)) return '서버의 AI 키가 올바르지 않습니다. 관리자에게 문의해 주세요.';
   if (status === 413) return '보낸 사진이 너무 큽니다. 사진 수를 줄이거나 작은 사진을 써 주세요.';
-  if (status === 500 && /GEMINI_API_KEY/.test(msg)) return msg + ' (Vercel 설정 → Environment Variables 에서 넣어 주세요)';
-  if (status === 404) return '"' + model + '" 모델을 찾을 수 없습니다. AI 연결 칸에서 모델 이름을 바꿔 보세요. (원문: ' + msg + ')';
+  if (status === 500 && /GEMINI_API_KEY/.test(msg)) return 'AI 키가 서버에 설정되지 않았습니다. 관리자에게 문의해 주세요.';
+  if (status === 404) return 'AI 모델을 찾을 수 없습니다. 관리자에게 문의해 주세요. (원문: ' + msg + ')';
   if (status === 429) return '요청이 너무 잦거나 무료 한도를 넘었습니다. 잠시 후 다시 시도해 주세요.';
-  if (status === 403) return '이 키로는 해당 모델을 쓸 수 없습니다. (원문: ' + msg + ')';
+  if (status === 403) return '서버의 AI 키로는 이 기능을 쓸 수 없습니다. 관리자에게 문의해 주세요.';
   return 'Gemini 오류 (HTTP ' + status + '): ' + msg;
 }
 function dataUriParts(list) {
@@ -1543,7 +2010,6 @@ async function buildFromScript(btn) {
   }
   const n = +document.getElementById('cardCountSel').value;
   const industry = document.getElementById('industry').value.trim();
-  const model = document.getElementById('gTextModel').value.trim() || 'gemini-2.5-flash';
 
   btn.disabled = true;
   note('buildNote', 'warn', 'AI가 원고를 읽고 있습니다… 10초에서 1분쯤 걸립니다.');
@@ -1552,7 +2018,7 @@ async function buildFromScript(btn) {
     const small = await Promise.all(S.shots.map(u => shrink(u, 1024)));
     dataUriParts(small).forEach(p => parts.push(p));
 
-    const json = await callGemini(model, {
+    const json = await callGemini('analyze', {
       contents: [{ role: 'user', parts }],
       generationConfig: {
         responseMimeType: 'application/json',
@@ -1605,105 +2071,6 @@ async function buildFromScript(btn) {
   }
 }
 document.getElementById('buildBtn').addEventListener('click', e => buildFromScript(e.currentTarget));
-
-/* ══════════════════════════════════════════════════════════════════
-   AI 배경 만들기
-
-   AI 는 배경만 그린다. 글자는 이 편집기가 CSS 로 얹는다.
-   이미지 모델은 한글을 제대로 못 써서, 카드 전체를 AI 로 그리면 글자가 깨진다.
-   결과는 반드시 data URI 로 받는다. 원격 URL 을 배경에 넣으면 PNG 내보내기에서
-   캔버스가 오염돼 저장이 깨진다.
-   ══════════════════════════════════════════════════════════════════ */
-const STYLE_TEXT = {
-  photo:      'Realistic photography, natural light, shallow depth of field, high detail.',
-  film:       'Shot on 35mm film, warm grain, soft faded highlights, nostalgic mood.',
-  minimal:    'Minimalist composition, large areas of flat colour, clean negative space, soft even light.',
-  illust:     'Flat vector illustration, bold simple shapes, limited colour palette.',
-  watercolor: 'Soft watercolour painting, gentle bleeding edges, paper texture.',
-  '3d':       'Soft 3D render, matte clay materials, smooth studio lighting.'
-};
-/* 카드마다 글자가 놓이는 자리가 달라서, 비워 둘 영역을 다르게 지시한다 */
-const COMPOSITION = {
-  cover:  'Place the subject in the upper two thirds. Keep the bottom third calm and dark so white text sits on it.',
-  bodyL:  'Keep the lower half calm and uncluttered so white text sits on it.',
-  bodyM:  'Keep the lower half calm and uncluttered so white text sits on it.',
-  qa:     'Keep the lower half calm and uncluttered so white text sits on it.',
-  color:  'A clean, well lit scene that fills the frame. The lower part of the image will be cropped.',
-  end:    'A calm, atmospheric scene. Keep the top and the lower third simple.',
-  split2: 'A clean, well lit scene that reads clearly when cropped to a wide band.',
-  split3: 'A clean, well lit scene that reads clearly under a dark overlay when cropped to a wide band.',
-  sum:    'A calm, dark, uncluttered background.'
-};
-const NO_TEXT = 'Do not render any text, letters, words, numbers, captions, watermarks or logos anywhere in the image.';
-
-function aiStatus(msg, kind) {
-  const el = document.getElementById('aiStatus');
-  if (!el) return;
-  el.textContent = msg || '';
-  el.className = 'hint' + (kind ? ' ' + kind : '');
-  el.style.color = kind === 'err' ? '#D64562' : kind === 'ok' ? '#2A9D5C' : '';
-}
-
-async function geminiImage(prompt) {
-  const model = document.getElementById('gImgModel').value.trim() || 'gemini-2.5-flash-image';
-  const json = await callGemini(model, {
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: { responseModalities: ['IMAGE'] }
-  });
-  const parts = (((json.candidates || [])[0] || {}).content || {}).parts || [];
-  const img = parts.find(p => p.inlineData && p.inlineData.data);
-  if (!img) throw new Error('그림을 받지 못했습니다. 장면 설명을 조금 바꿔서 다시 시도해 보세요.');
-  return 'data:' + (img.inlineData.mimeType || 'image/png') + ';base64,' + img.inlineData.data;
-}
-
-async function openaiImage(prompt) {
-  const key = document.getElementById('oKey').value.trim();
-  if (!key) throw new Error('OpenAI API 키를 입력해 주세요.');
-  const body = { model: 'gpt-image-1', prompt, size: '1024x1536', quality: 'medium', n: 1 };
-  const res = await fetch('https://api.openai.com/v1/images/generations', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key },
-    body: JSON.stringify(body)
-  });
-  if (!res.ok) {
-    let d = '';
-    try { const j = await res.json(); d = j && j.error && j.error.message || ''; } catch (e) {}
-    if (res.status === 401) throw new Error('OpenAI API 키가 올바르지 않습니다.');
-    if (res.status === 403) throw new Error('이 키로는 gpt-image-1 을 쓸 수 없습니다. OpenAI 에서 조직 인증을 완료해 주세요.');
-    if (res.status === 429) throw new Error('요청이 너무 잦거나 사용 한도를 넘었습니다.');
-    throw new Error('OpenAI 오류 (HTTP ' + res.status + ') ' + d);
-  }
-  const j = await res.json();
-  const b64 = j && j.data && j.data[0] && j.data[0].b64_json;
-  if (!b64) throw new Error('그림 데이터를 받지 못했습니다.');
-  return 'data:image/png;base64,' + b64;
-}
-
-async function makeBackground(btn) {
-  const c = S.cards[S.sel];
-  const scene = document.getElementById('aiPrompt').value.trim();
-  if (!scene) { aiStatus('어떤 장면을 그릴지 적어 주세요.', 'err'); return; }
-  const style = document.getElementById('aiStyle').value;
-  const prompt = [scene, STYLE_TEXT[style], COMPOSITION[c.layout],
-    'Vertical portrait framing for a 4:5 social media card.', NO_TEXT].filter(Boolean).join(' ');
-
-  btn.disabled = true;
-  aiStatus('그림을 만드는 중… 20초에서 1분쯤 걸립니다.');
-  try {
-    const provider = document.getElementById('imgProvider').value;
-    const uri = provider === 'openai' ? await openaiImage(prompt) : await geminiImage(prompt);
-    c.bgs[0].img = uri;
-    renderAll();
-    aiStatus('배경을 넣었습니다. 위치·확대 막대로 구도를 다듬어 보세요.', 'ok');
-  } catch (e) {
-    console.error(e);
-    const m = (e && e.message) ? e.message : String(e);
-    aiStatus(/Failed to fetch|NetworkError/i.test(m)
-      ? '연결하지 못했습니다. 인터넷 연결과 광고 차단 확장 프로그램을 확인해 주세요.' : m, 'err');
-  } finally {
-    btn.disabled = false;
-  }
-}
 
 /* ══════════ 작업 파일 저장 · 열기 · 다시 만들기 ══════════ */
 function download(blob, name) {
@@ -1817,6 +2184,7 @@ btnAll.addEventListener('click', () => run(S.cards.map((_, i) => i)));
 
 /* ══════════ 시작 ══════════ */
 renderLayoutGrid();
+renderPalette();
 renderShots();
 applyTheme();
 renderAll();

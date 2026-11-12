@@ -1,21 +1,25 @@
 /*
  * Gemini 중계 (Vercel 서버리스 함수)
  *
- * 왜 필요한가
- *   이 저장소는 공개돼 있어서 API 키를 코드에 넣으면 그대로 털린다.
+ * 왜 이렇게 두었나
+ *   저장소가 공개돼 있어서 API 키를 코드에 넣으면 그대로 털린다.
  *   브라우저에서 Gemini 를 직접 부르면 키가 사용자 쪽에 노출된다.
- *   그래서 키는 Vercel 환경변수(GEMINI_API_KEY)에만 두고,
- *   이 함수가 대신 불러서 결과만 돌려준다.
+ *   그래서 키는 Vercel 환경변수에만 두고, 이 함수가 대신 부른다.
+ *   쓰는 사람은 키를 입력할 필요도, 볼 일도 없다.
  *
- * 쓰는 법
- *   Vercel → 프로젝트 → Settings → Environment Variables 에
- *   GEMINI_API_KEY = <발급받은 키> 를 넣고 다시 배포하면 된다.
+ * 관리자가 넣을 환경변수 (Vercel → Settings → Environment Variables)
+ *   GEMINI_API_KEY      (필수)  발급받은 키
+ *   GEMINI_TEXT_MODEL   (선택)  기본값 gemini-2.5-flash
  *
- * 요청:  POST /api/gemini   { model: "gemini-2.5-flash", body: { ... } }
+ * 요청:  POST /api/gemini   { kind: "analyze", body: { ... } }
  * 응답:  Gemini 응답을 그대로 전달 (상태 코드 포함)
+ *
+ * 모델 이름은 서버가 정한다. 브라우저가 보낸 값은 쓰지 않는다.
  */
 
-const ALLOWED_MODEL = /^[A-Za-z0-9._-]{1,64}$/;
+const MODELS = {
+  analyze: () => process.env.GEMINI_TEXT_MODEL || 'gemini-2.5-flash'
+};
 const MAX_BODY = 4 * 1024 * 1024; // Vercel 요청 본문 한도(4.5MB)보다 조금 작게
 
 module.exports = async function handler(req, res) {
@@ -38,12 +42,15 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: { message: '요청 형식이 올바르지 않습니다.' } });
   }
 
-  const { model, body } = payload;
-  if (!model || !ALLOWED_MODEL.test(model)) {
-    return res.status(400).json({ error: { message: '모델 이름이 올바르지 않습니다.' } });
+  const pickModel = MODELS[payload.kind];
+  if (!pickModel) {
+    return res.status(400).json({ error: { message: '알 수 없는 요청입니다.' } });
   }
+  const model = pickModel();
+
+  const { body } = payload;
   if (!body || typeof body !== 'object') {
-    return res.status(400).json({ error: { message: 'body 가 필요합니다.' } });
+    return res.status(400).json({ error: { message: '보낼 내용이 없습니다.' } });
   }
 
   const forward = JSON.stringify(body);
@@ -69,6 +76,6 @@ module.exports = async function handler(req, res) {
     return res.send(text);
   } catch (e) {
     return res.status(502).json({ error: { message:
-      'Gemini 에 연결하지 못했습니다: ' + (e && e.message ? e.message : String(e)) } });
+      'AI 서버에 연결하지 못했습니다: ' + (e && e.message ? e.message : String(e)) } });
   }
 };
