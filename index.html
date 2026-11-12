@@ -1914,52 +1914,33 @@ const CARD_SCHEMA = {
   required: ['cards', 'missing']
 };
 
-const LAYOUT_BRIEF = Object.keys(LAYOUTS).map(k => {
-  const L = LAYOUTS[k];
-  return '- ' + k + ' (' + L.name + ', 역할: ' + L.role + ') : 채울 칸 '
-       + L.slots.map(s => s.k).join(', ') + ' / 사진 ' + L.bgN + '칸';
-}).join('\n');
+const LAYOUT_BRIEF = Object.keys(LAYOUTS).map(k =>
+  k + '=' + LAYOUTS[k].slots.map(x => x.k).join(',')).join(' | ');
 
 function buildAnalysisPrompt(n, industry, purpose, script, shotCount) {
   return [
-'당신은 한국어 카드뉴스 편집자입니다. 아래 원고를 인스타그램 카드뉴스 ' + n + '장으로 나눕니다.',
+'한국어 카드뉴스 편집자로서 아래 원고를 ' + n + '장으로 나눠 JSON 으로만 답하세요.',
 '',
-'■ 절대 지켜야 할 규칙',
-'1. 원고에 없는 사실을 절대 지어내지 마세요. 특히 날짜, 기간, 가격, 할인율, 전화번호,',
-'   주소, 인원수, 통계 수치, 자격·수상 내역은 원고에 그대로 적혀 있을 때만 쓰세요.',
-'2. 카드에 필요한데 원고에서 확인할 수 없는 정보가 있으면, 그 칸을 빈 문자열로 두고',
-'   missing 배열에 "무엇이 필요한지"를 한국어 한 문장으로 적으세요. 추측해서 채우지 마세요.',
-'   예: "행사 날짜가 원고에 없습니다. 표지에 넣을 날짜를 알려주세요."',
-'3. 과장된 효능이나 보장 표현을 새로 만들지 마세요. 원고의 표현을 다듬는 선에서만 쓰세요.',
+'[지어내지 않기] 원고에 없는 날짜·가격·전화번호·주소·수치·실적은 절대 쓰지 마세요.',
+'필요한데 원고에 없으면 그 칸을 빈 문자열로 두고, 무엇이 필요한지 missing 에 한 문장으로 적으세요.',
+'과장된 효능·보장 표현을 새로 만들지 마세요.',
 '',
-'■ 글자 수 (이 범위를 넘기면 디자인이 깨집니다)',
-'- title : 2~3줄, 한 줄 12자 안팎. 줄바꿈은 \\n 으로',
-'- body  : 3줄 안팎, 한 줄 20자 안팎',
-'- cap, q, msg : 1~2줄',
-'- p1~p3, lab1~lab3, badge : 10자 이내',
+'[길이] title 2~3줄(한 줄 12자 안팎) · body 3줄 안팎(한 줄 20자 안팎) · cap/q/msg 1~2줄 ·',
+'p1~p3, lab1~lab3, chip1~3, chk1~3, badge, pill 은 10자 이내. 줄바꿈은 \n 으로.',
 '',
-'■ 쓸 수 있는 카드 모양',
+'[구성] 첫 장은 cover·split3·rCover·rCoverL 중 하나, 마지막 장은 end 또는 rEnd.',
+'창 계열(r 로 시작)과 사진 계열을 섞지 말고 한쪽으로 통일하세요.',
+'한 카드에는 그 모양이 쓰는 칸만 채우고 나머지는 비우세요.',
+'',
+'[모양=칸]',
 LAYOUT_BRIEF,
 '',
-'■ 구성 규칙',
-'- 1번째 장은 반드시 cover 또는 split3 (표지).',
-'- 마지막 장은 반드시 end (마무리).',
-'- 가운데 장은 내용에 맞게 고르세요. 질문·답변 형식이면 qa, 핵심 정리는 sum,',
-'  사진이 주인공이면 color 나 split2, 일반 설명은 bodyL 이나 bodyM.',
-'- 각 카드에는 그 모양이 쓰는 칸만 채우고 나머지는 비워 두세요.',
-'',
 shotCount
-  ? '■ 사진\n사용자가 사진 ' + shotCount + '장을 올렸습니다 (0번부터 ' + (shotCount-1) + '번). '
-    + '각 사진이 무엇인지 보고, 가장 어울리는 카드의 imageIndex 에 번호를 넣으세요. '
-    + '어울리는 사진이 없으면 -1 을 넣으세요. 같은 사진을 여러 장에 쓰지 마세요.\n'
-    + '사진에서 읽히지 않는 정보(가격표의 숫자가 흐릿한 경우 등)는 추측하지 말고 missing 에 적으세요.'
-  : '■ 사진\n올린 사진이 없습니다. imageIndex 는 모두 -1 로 두세요.',
+  ? '[사진] ' + shotCount + '장(0~' + (shotCount - 1) + '번). 어울리는 카드의 imageIndex 에 번호를, 없으면 -1. 중복 금지.'
+  : '[사진] 없음. imageIndex 는 모두 -1.',
+'업종: ' + (industry || '미지정') + ' / 목적: ' + purpose,
 '',
-'■ 이 카드뉴스',
-'업종: ' + (industry || '밝히지 않음'),
-'목적: ' + purpose,
-'',
-'■ 원고',
+'[원고]',
 script
   ].join('\n');
 }
@@ -1993,7 +1974,7 @@ function shrink(dataUri, maxPx) {
       const c = document.createElement('canvas');
       c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      try { resolve(c.toDataURL('image/jpeg', 0.82)); } catch (e) { resolve(dataUri); }
+      try { resolve(c.toDataURL('image/jpeg', 0.75)); } catch (e) { resolve(dataUri); }
     };
     img.onerror = () => resolve(dataUri);
     img.src = dataUri;
@@ -2029,10 +2010,13 @@ async function buildFromScript(btn) {
   const industry = document.getElementById('industry').value.trim();
 
   btn.disabled = true;
-  note('buildNote', 'warn', 'AI가 원고를 읽고 있습니다… 10초에서 1분쯤 걸립니다.');
+  const t0 = Date.now();
+  note('buildNote', 'warn', 'AI가 원고를 읽고 있습니다…');
+  const tick = setInterval(() => note('buildNote', 'warn',
+    'AI가 원고를 읽고 있습니다… ' + Math.round((Date.now() - t0) / 1000) + '초'), 1000);
   try {
     const parts = [{ text: buildAnalysisPrompt(n, industry, S.purpose, script || '(원고 없음. 사진만 보고 구성하세요.)', S.shots.length) }];
-    const small = await Promise.all(S.shots.map(u => shrink(u, 1024)));
+    const small = await Promise.all(S.shots.map(u => shrink(u, 768)));
     dataUriParts(small).forEach(p => parts.push(p));
 
     const json = await callGemini('analyze', {
@@ -2040,7 +2024,11 @@ async function buildFromScript(btn) {
       generationConfig: {
         responseMimeType: 'application/json',
         responseSchema: CARD_SCHEMA,
-        temperature: 0.7
+        temperature: 0.6,
+        maxOutputTokens: 4096,
+        /* 원고를 장별로 쪼개는 건 '생각'이 필요 없는 추출 작업이다.
+           기본값대로 두면 모델이 수십 초를 생각에 쓴다. 꺼서 응답을 앞당긴다. */
+        thinkingConfig: { thinkingBudget: 0 }
       }
     });
 
@@ -2070,9 +2058,11 @@ async function buildFromScript(btn) {
     S.sel = 0;
     renderAll();
 
+    clearInterval(tick);
+    const secs = ((Date.now() - t0) / 1000).toFixed(1);
     const miss = (out.missing || []).filter(m => m && m.trim());
     note('buildNote', miss.length ? 'warn' : 'ok',
-      '<b>' + S.cards.length + '장을 만들었습니다.</b>' +
+      '<b>' + S.cards.length + '장을 만들었습니다.</b> <span style="opacity:.65">· ' + secs + '초</span>' +
       (miss.length
         ? ' 아래 내용은 원고에 없어서 <b>비워 뒀습니다.</b> 직접 채워 주세요.<ul>'
           + miss.map(m => '<li>' + esc(m) + '</li>').join('') + '</ul>'
@@ -2084,6 +2074,7 @@ async function buildFromScript(btn) {
       ? 'Gemini 에 연결하지 못했습니다. 인터넷 연결과 광고 차단 확장 프로그램을 확인해 주세요.'
       : esc(m));
   } finally {
+    clearInterval(tick);
     btn.disabled = false;
   }
 }

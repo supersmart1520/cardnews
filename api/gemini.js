@@ -30,23 +30,46 @@ const MODELS = {
 const MODEL_RE = /^[A-Za-z0-9._-]{1,64}$/;
 const MAX_BODY = 4 * 1024 * 1024; // Vercel 요청 본문 한도(4.5MB)보다 조금 작게
 
-/* 붐빌 때(503)·잠깐 막힐 때(429) 기다렸다 다시 부른다.
-   사람이 버튼을 다시 누르지 않아도 되도록 서버가 알아서 처리한다.
-   vercel.json 의 maxDuration 60초 안에 끝나도록 간격을 잡았다. */
-const RETRY_WAIT_MS = [1200, 3000, 6000];
+/* 붐빌 때(503)·잠깐 막힐 때(429) 한 번만 짧게 쉬었다 다시 부른다.
+   예전엔 1.2초·3초·6초로 세 번 쉬었는데, 그 기다림이 그대로 체감 지연이 됐다.
+   오래 기다리게 두느니 빨리 알려주고 사람이 다시 누르는 편이 낫다. */
+const RETRY_WAIT_MS = [700];
 const RETRY_STATUS = new Set([429, 500, 502, 503, 504]);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-function callUpstream(model, key, forward) {
-  return fetch(
-    'https://generativelanguage.googleapis.com/v1beta/models/'
-      + encodeURIComponent(model) + ':generateContent',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      body: forward
+/* 한 번 호출이 이보다 오래 걸리면 끊는다. 60초를 마냥 기다리지 않는다. */
+const CALL_TIMEOUT_MS = 22000;
+
+async function callUpstream(model, key, forward) {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), CALL_TIMEOUT_MS);
+  try {
+    return await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/'
+        + encodeURIComponent(model) + ':generateContent',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: forward,
+        signal: ac.signal
+      }
+    );
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/* thinkingConfig 를 모르는 모델이면 그 항목만 빼고 한 번 더 시도한다.
+   (모델마다 지원 여부가 달라서 400 이 날 수 있다) */
+function stripThinking(forward) {
+  try {
+    const o = JSON.parse(forward);
+    if (o && o.generationConfig && o.generationConfig.thinkingConfig) {
+      delete o.generationConfig.thinkingConfig;
+      return JSON.stringify(o);
     }
-  );
+  } catch (e) {}
+  return null;
 }
 
 module.exports = async function handler(req, res) {
@@ -111,7 +134,18 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    /* 붐비거나 일시적으로 실패하면 조금 기다렸다 다시 부른다 */
+    /* thinkingConfig 를 못 알아듣는 모델이면 그것만 빼고 다시 */
+    if (!upstream.ok && upstream.status === 400 && /think/i.test(text)) {
+      const plain = stripThinking(forward);
+      if (plain) {
+        const again = await callUpstream(used, key, plain);
+        const againText = await again.text();
+        tries++;
+        if (again.ok) { upstream = again; text = againText; }
+      }
+    }
+
+    /* 붐비거나 일시적으로 실패하면 짧게 한 번만 더 */
     for (let i = 0; i < RETRY_WAIT_MS.length && !upstream.ok && RETRY_STATUS.has(upstream.status); i++) {
       await sleep(RETRY_WAIT_MS[i]);
       const again = await callUpstream(used, key, forward);
@@ -136,6 +170,10 @@ module.exports = async function handler(req, res) {
     res.setHeader('X-Model-Used', used);
     return res.send(text);
   } catch (e) {
+    if (e && e.name === 'AbortError') {
+      return res.status(504).json({ error: { message:
+        'AI 응답이 ' + Math.round(CALL_TIMEOUT_MS / 1000) + '초를 넘겼습니다. 다시 시도해 주세요.' } });
+    }
     return res.status(502).json({ error: { message:
       'AI 서버에 연결하지 못했습니다: ' + (e && e.message ? e.message : String(e)) } });
   }
