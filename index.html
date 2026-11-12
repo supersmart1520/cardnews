@@ -2006,6 +2006,9 @@ function explainGemini(status, msg) {
   if (status === 500 && /GEMINI_API_KEY/.test(msg)) return 'AI 키가 서버에 설정되지 않았습니다. 관리자에게 문의해 주세요.';
   if (status === 404) return 'AI 모델을 찾을 수 없습니다. 관리자에게 문의해 주세요. (원문: ' + msg + ')';
   if (status === 429) return '요청이 너무 잦거나 무료 한도를 넘었습니다. 잠시 후 다시 시도해 주세요.';
+  if (status === 503) return 'AI 서버가 지금 많이 붐빕니다. 서버가 세 번까지 다시 시도했지만 아직 여유가 없네요. '
+    + '1~2분 뒤에 [카드뉴스 만들기] 를 한 번 더 눌러 주세요.';
+  if (status === 504) return 'AI 응답이 너무 오래 걸립니다. 원고를 조금 줄이거나 잠시 후 다시 시도해 주세요.';
   if (status === 403) return '서버의 AI 키로는 이 기능을 쓸 수 없습니다. 관리자에게 문의해 주세요.';
   return 'Gemini 오류 (HTTP ' + status + '): ' + msg;
 }

@@ -9,7 +9,8 @@
  *
  * 관리자가 넣을 환경변수 (Vercel → Settings → Environment Variables)
  *   GEMINI_API_KEY      (필수)  발급받은 키
- *   GEMINI_TEXT_MODEL   (선택)  기본값은 아래 DEFAULT_TEXT_MODEL
+ *   GEMINI_TEXT_MODEL     (선택)  기본값은 아래 DEFAULT_TEXT_MODEL
+ *   GEMINI_FALLBACK_MODEL (선택)  본 모델이 계속 붐빌 때 대신 쓸 모델
  *
  * 요청:  POST /api/gemini   { kind: "analyze", body: { ... } }
  * 응답:  Gemini 응답을 그대로 전달 (상태 코드 포함)
@@ -28,6 +29,13 @@ const MODELS = {
 };
 const MODEL_RE = /^[A-Za-z0-9._-]{1,64}$/;
 const MAX_BODY = 4 * 1024 * 1024; // Vercel 요청 본문 한도(4.5MB)보다 조금 작게
+
+/* 붐빌 때(503)·잠깐 막힐 때(429) 기다렸다 다시 부른다.
+   사람이 버튼을 다시 누르지 않아도 되도록 서버가 알아서 처리한다.
+   vercel.json 의 maxDuration 60초 안에 끝나도록 간격을 잡았다. */
+const RETRY_WAIT_MS = [1200, 3000, 6000];
+const RETRY_STATUS = new Set([429, 500, 502, 503, 504]);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function callUpstream(model, key, forward) {
   return fetch(
@@ -86,6 +94,7 @@ module.exports = async function handler(req, res) {
     let upstream = await callUpstream(model, key, forward);
     let text = await upstream.text();
     let used = model;
+    let tries = 1;
 
     /* "models/XXX 를 쓰라" 는 안내가 오면 그 모델로 한 번만 다시 시도 */
     if (!upstream.ok) {
@@ -97,10 +106,30 @@ module.exports = async function handler(req, res) {
       if (next && MODEL_RE.test(next)) {
         const retry = await callUpstream(next, key, forward);
         const retryText = await retry.text();
+        tries++;
         if (retry.ok) { upstream = retry; text = retryText; used = next; }
       }
     }
 
+    /* 붐비거나 일시적으로 실패하면 조금 기다렸다 다시 부른다 */
+    for (let i = 0; i < RETRY_WAIT_MS.length && !upstream.ok && RETRY_STATUS.has(upstream.status); i++) {
+      await sleep(RETRY_WAIT_MS[i]);
+      const again = await callUpstream(used, key, forward);
+      const againText = await again.text();
+      tries++;
+      upstream = again; text = againText;
+    }
+
+    /* 그래도 붐비면, 관리자가 지정해 둔 예비 모델로 한 번 더 */
+    const spare = process.env.GEMINI_FALLBACK_MODEL;
+    if (!upstream.ok && RETRY_STATUS.has(upstream.status) && spare && MODEL_RE.test(spare) && spare !== used) {
+      const alt = await callUpstream(spare, key, forward);
+      const altText = await alt.text();
+      tries++;
+      if (alt.ok) { upstream = alt; text = altText; used = spare; }
+    }
+
+    res.setHeader('X-Model-Tries', String(tries));
     res.status(upstream.status);
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
