@@ -618,10 +618,24 @@
   <div class="step">
     <div class="head"><span class="n">1</span><b>카드뉴스에 넣을 내용</b></div>
     <div class="field">
-      <textarea id="script" rows="7" placeholder="원고를 붙여 넣어 주세요.
+      <textarea id="script" rows="8" placeholder="원고를 붙여 넣어 주세요. 블로그 글, 메모, 안내문 무엇이든 괜찮습니다.">남대문 다녀온 이야기
 
-블로그 글, 메모, 안내문 무엇이든 괜찮습니다.
-AI가 읽고 장별로 나눠 줍니다."></textarea>
+1장 오래 쓰는 샤워 꿀템 성지
+코끼리 샤워타월 4,000원 / 문어 괄사 2,000원 / 인기 만점 때비누 2,000원
+샤워 꿀템들이 가득해서 구경하는 재미가 쏠쏠했어요!
+
+2장 아기자기한 그릇 성지, 현대기물
+예쁜 그릇들이 가득한 현대기물! 사람들이 바글바글해서 인기를 실감했어요.
+구경하다 보니 이것저것 다 사고 싶어지는 곳.
+
+3장 남자친구 눈이 번쩍 뜨인 군대용품 성지
+옛날 노란 깔깔이를 찾던 남자친구.
+군대용품이 가득한 곳에서 한참을 구경했어요!
+
+4장 남대문 나들이의 마무리는 갈치조림
+열심히 구경하고 나니 배가 고파져서 들어간 식당.
+갈치조림도 맛있고 밑반찬도 끝내줬어요!
+볼거리부터 먹거리까지 가득했던 남대문 나들이 끝 💛</textarea>
     </div>
     <label class="upload-box">
       <p>🖼️ 이미지 추가하기</p>
@@ -632,7 +646,7 @@ AI가 읽고 장별로 나눠 줍니다."></textarea>
 
     <div class="two" style="margin-top:10px">
       <div class="field"><span>업종</span>
-        <input type="text" id="industry" list="industryList" placeholder="예: 피부과">
+        <input type="text" id="industry" list="industryList" value="나들이·여행" placeholder="예: 피부과">
         <datalist id="industryList">
           <option value="피부과"><option value="학원"><option value="음식점"><option value="카페">
           <option value="여행사"><option value="헬스장"><option value="공유오피스"><option value="인테리어">
@@ -680,9 +694,9 @@ AI가 읽고 장별로 나눠 줍니다."></textarea>
     </div>
     <div class="field"><span>상단 띠 문구 <em>· 표지·마무리 장</em></span>
       <textarea id="headline" rows="2" placeholder="예: 전문의 6인이 진료하는 ○○피부과
-♢ 예약 문의 : 000-0000-0000 ♢"></textarea></div>
+♢ 예약 문의 : 000-0000-0000 ♢">남대문 나들이 · 볼거리부터 먹거리까지</textarea></div>
     <div class="field"><span>로고 글자 <em>· 아래쪽에 들어갑니다</em></span>
-      <input type="text" id="brandText" placeholder="예: HUMAN"></div>
+      <input type="text" id="brandText" value="남대문 나들이" placeholder="예: HUMAN"></div>
     <label class="upload-box">
       <p>🏷️ 로고 이미지로 바꾸기 (선택)</p>
       <input type="file" accept="image/*" id="logoInput">
@@ -754,78 +768,78 @@ const LAYOUTS = {
     name:'표지', role:'표지', fam:'photo', bgN:1, parts:['bg','grad'],
     thumb:[[0,0,100,100,''],[10,58,80,20,'w'],[20,86,60,4,'w']],
     slots:[
-      {k:'title', cls:'s-title', label:'제목',      type:'ta', rows:3, guide:'3줄 이내', def:'큰 제목을\n여기에'},
-      {k:'cap',   cls:'s-cap',   label:'한 줄 설명', type:'ta', rows:2, guide:'1줄 권장', def:'짧은 설명 한 줄'}
+      {k:'title', cls:'s-title', label:'제목',      type:'ta', rows:3, guide:'3줄 이내', def:'남대문\n다녀온 이야기'},
+      {k:'cap',   cls:'s-cap',   label:'한 줄 설명', type:'ta', rows:2, guide:'1줄 권장', def:'볼거리부터 먹거리까지 가득했던 하루'}
     ]
   },
   bodyL: {
     name:'본문·큰제목', fam:'photo', role:'본문', bgN:1, parts:['bg','grad','foot'],
     thumb:[[0,0,100,100,''],[8,52,84,16,'w'],[8,74,84,11,'w'],[0,94,100,6,'w']],
     slots:[
-      {k:'title', cls:'s-title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'핵심 메시지'},
-      {k:'body',  cls:'s-body',  label:'본문', type:'ta', rows:3, guide:'3줄 권장', def:'설명을 여기에 적습니다.\n두세 줄이 보기 좋습니다.'}
+      {k:'title', cls:'s-title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'오래 쓰는\n샤워 꿀템 성지'},
+      {k:'body',  cls:'s-body',  label:'본문', type:'ta', rows:3, guide:'3줄 권장', def:'샤워 꿀템들이 가득해서\n구경하는 재미가 쏠쏠했어요!'}
     ]
   },
   bodyM: {
     name:'본문·중제목', fam:'photo', role:'본문', bgN:1, parts:['bg','grad','foot'],
     thumb:[[0,0,100,100,''],[8,55,84,13,'w'],[8,74,84,11,'w'],[0,94,100,6,'w']],
     slots:[
-      {k:'title', cls:'s-title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:"마음이 놓이는 곳,\n'우리 공간'"},
-      {k:'body',  cls:'s-body',  label:'본문', type:'ta', rows:3, guide:'3줄 권장', def:'여기에 설명을 적습니다.\n세 줄까지 자연스럽게 들어갑니다.'}
+      {k:'title', cls:'s-title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:"아기자기한 그릇 성지,\n'현대기물'"},
+      {k:'body',  cls:'s-body',  label:'본문', type:'ta', rows:3, guide:'3줄 권장', def:'예쁜 그릇들이 가득한 현대기물!\n사람들이 바글바글해서\n인기를 실감했어요.'}
     ]
   },
   qa: {
     name:'질문·답변', fam:'photo', role:'본문', bgN:1, parts:['bg','grad','foot'],
     thumb:[[0,0,100,100,''],[43,57,14,5,'w'],[16,67,68,6,'a'],[8,78,84,11,'w'],[0,94,100,6,'w']],
     slots:[
-      {k:'badge', cls:'s-badge pill white ctr', label:'번호', type:'tx', guide:'01, Q1 등', def:'01'},
-      {k:'q',     cls:'s-q',    label:'질문', type:'ta', rows:2, guide:'1줄 권장', def:'가장 궁금한 건 뭘까요?'},
-      {k:'body',  cls:'s-body', label:'답변', type:'ta', rows:3, guide:'3줄 권장', def:'답변을 적습니다.\n길면 다음 장으로 나누세요.'}
+      {k:'badge', cls:'s-badge pill white ctr', label:'번호', type:'tx', guide:'01, Q1 등', def:'03'},
+      {k:'q',     cls:'s-q',    label:'질문', type:'ta', rows:2, guide:'1줄 권장', def:'남자친구 눈이 번쩍 뜨인 곳은?'},
+      {k:'body',  cls:'s-body', label:'답변', type:'ta', rows:3, guide:'3줄 권장', def:'옛날 노란 깔깔이를 찾던 남자친구.\n군대용품이 가득한 곳에서\n한참을 구경했어요!'}
     ]
   },
   color: {
     name:'컬러블록', fam:'photo', role:'본문', bgN:1, parts:['cblock','foot'],
     thumb:[[0,0,100,65,'a'],[8,70,84,18,'w'],[0,94,100,6,'w']],
     slots:[
-      {k:'body', cls:'s-body', label:'본문', type:'ta', rows:5, guide:'5줄 권장', def:'사진에 대한 설명을 적습니다.\n이 자리는 다섯 줄까지 들어가서\n조금 긴 이야기도 담을 수 있습니다.'}
+      {k:'body', cls:'s-body', label:'본문', type:'ta', rows:5, guide:'5줄 권장', def:'코끼리 샤워타월 4,000원\n문어 괄사 2,000원\n인기 만점 때비누 2,000원\n\n구경하는 재미가 쏠쏠했어요!'}
     ]
   },
   end: {
     name:'마무리·명함', fam:'photo', role:'마무리', bgN:1, parts:['bg','headband','whitecard'],
     thumb:[[0,0,100,12,'a'],[6,72,88,22,'w']],
     slots:[
-      {k:'msg', cls:'s-msg', label:'마무리 문구', type:'ta', rows:3, guide:'3줄 이내', def:'찾아주셔서 감사합니다.\n언제든 편하게 문의해 주세요.'}
+      {k:'msg', cls:'s-msg', label:'마무리 문구', type:'ta', rows:3, guide:'3줄 이내', def:'볼거리부터 먹거리까지\n가득했던 남대문 나들이 끝 💛'}
     ]
   },
   split2: {
     name:'2분할', fam:'photo', role:'본문', bgN:2, parts:['half2','foot'],
     thumb:[[0,0,100,49,''],[0,50,100,44,'d'],[30,27,40,5,'w'],[30,82,40,5,'a'],[0,94,100,6,'w']],
     slots:[
-      {k:'lab1', cls:'s-lab1 pill white ctr', label:'위쪽 라벨',  type:'tx', def:'첫 번째'},
-      {k:'lab2', cls:'s-lab2 pill ctr',       label:'아래쪽 라벨', type:'tx', def:'두 번째'}
+      {k:'lab1', cls:'s-lab1 pill white ctr', label:'위쪽 라벨',  type:'tx', def:'현대기물'},
+      {k:'lab2', cls:'s-lab2 pill ctr',       label:'아래쪽 라벨', type:'tx', def:'군대용품'}
     ]
   },
   split3: {
     name:'3분할+목록', fam:'photo', role:'표지', bgN:3, parts:['third3','dark'],
     thumb:[[0,0,100,32,''],[0,33,100,32,'d'],[0,66,100,34,''],[8,13,40,5,'a'],[8,21,40,5,'w'],[8,29,30,5,'a'],[12,58,76,18,'w'],[20,86,60,4,'w']],
     slots:[
-      {k:'lab1',  cls:'s-lab1 pill', label:'라벨 1', type:'tx', def:'첫째 항목'},
-      {k:'lab2',  cls:'s-lab2 pill', label:'라벨 2', type:'tx', def:'둘째 항목'},
-      {k:'lab3',  cls:'s-lab3 pill', label:'라벨 3', type:'tx', def:'셋째 항목'},
-      {k:'title', cls:'s-title', label:'제목',      type:'ta', rows:3, guide:'3줄 이내', def:'한눈에 보는\n우리 공간'},
-      {k:'cap',   cls:'s-cap',   label:'한 줄 설명', type:'ta', rows:2, def:'가장 소중하게 여기는 세 곳'}
+      {k:'lab1',  cls:'s-lab1 pill', label:'라벨 1', type:'tx', def:'샤워 꿀템'},
+      {k:'lab2',  cls:'s-lab2 pill', label:'라벨 2', type:'tx', def:'그릇 성지'},
+      {k:'lab3',  cls:'s-lab3 pill', label:'라벨 3', type:'tx', def:'군대용품'},
+      {k:'title', cls:'s-title', label:'제목',      type:'ta', rows:3, guide:'3줄 이내', def:'남대문에서\n찾은 세 곳'},
+      {k:'cap',   cls:'s-cap',   label:'한 줄 설명', type:'ta', rows:2, def:'구경하는 재미가 쏠쏠했던 하루'}
     ]
   },
   sum: {
     name:'정리', fam:'photo', role:'정리', bgN:0, parts:['solid'],
     thumb:[[0,0,100,100,'d'],[22,11,56,5,'w'],[16,24,68,6,'a'],[16,34,68,6,'a'],[16,44,68,6,'a'],[18,57,64,9,'w'],[10,73,80,5,'a']],
     slots:[
-      {k:'lead', cls:'s-lead', label:'들어가는 말', type:'ta', rows:2, def:'정리하면 이렇습니다.'},
-      {k:'p1',   cls:'s-p1 pill ctr', label:'항목 1', type:'tx', def:'첫 번째 핵심'},
-      {k:'p2',   cls:'s-p2 pill ctr', label:'항목 2', type:'tx', def:'두 번째 핵심'},
-      {k:'p3',   cls:'s-p3 pill ctr', label:'항목 3', type:'tx', def:'세 번째 핵심'},
-      {k:'out',  cls:'s-out', label:'맺는 말', type:'ta', rows:3, def:'어렵지 않죠?\n기본만 지켜도 충분합니다.'},
-      {k:'key',  cls:'s-key', label:'한 줄 요약', type:'ta', rows:2, guide:'굵게 강조됩니다', def:'기본에 충실하기'}
+      {k:'lead', cls:'s-lead', label:'들어가는 말', type:'ta', rows:2, def:'남대문에서 찾은 세 곳'},
+      {k:'p1',   cls:'s-p1 pill ctr', label:'항목 1', type:'tx', def:'샤워 꿀템 성지'},
+      {k:'p2',   cls:'s-p2 pill ctr', label:'항목 2', type:'tx', def:'그릇 성지 현대기물'},
+      {k:'p3',   cls:'s-p3 pill ctr', label:'항목 3', type:'tx', def:'군대용품 성지'},
+      {k:'out',  cls:'s-out', label:'맺는 말', type:'ta', rows:3, def:'열심히 구경하고 나니\n배가 고파졌어요.'},
+      {k:'key',  cls:'s-key', label:'한 줄 요약', type:'ta', rows:2, guide:'굵게 강조됩니다', def:'볼거리도 먹거리도 가득'}
     ]
   }
 };
@@ -872,8 +886,8 @@ Object.assign(LAYOUTS, {
     name:'창·표지', fam:'retro', role:'표지', bgN:0,
     thumb:[[0,0,100,100,'w'],[4,3,92,94,'d'],[4,3,92,6,'w'],[22,28,56,7,'d'],[12,38,76,12,'w']],
     slots:[
-      {k:'pill',  label:'작은 머리말', type:'tx', def:'코팩익스프레스'},
-      {k:'title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'겨울철 결로 예방법'}
+      {k:'pill',  label:'작은 머리말', type:'tx', def:'남대문 나들이'},
+      {k:'title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'남대문\n다녀온 이야기'}
     ],
     html: c => retroShell(sl('pill','rpill s-pill',c.f.pill) + sl('title','tbox s-title',c.f.title))
   },
@@ -882,13 +896,13 @@ Object.assign(LAYOUTS, {
     name:'창·표지(왼쪽)', fam:'retro', role:'표지', bgN:1,
     thumb:[[0,0,100,100,'w'],[4,3,92,94,'d'],[4,3,92,6,'w'],[8,12,50,6,'w'],[8,20,55,14,'w'],[8,40,60,4,'a'],[8,48,70,5,'a'],[8,57,76,32,'w']],
     slots:[
-      {k:'kicker', label:'윗줄', type:'tx', def:'천안포장이사,'},
-      {k:'title',  label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'이런 걱정\n있으신가요?'},
-      {k:'lead',   label:'설명', type:'ta', rows:2, def:'30년 경력 코팩익스프레스가\n고객님의 이사 걱정을 덜어드리겠습니다.'},
-      {k:'chip1',  label:'칩 1', type:'tx', def:'물품 파손'},
-      {k:'chip2',  label:'칩 2', type:'tx', def:'이사 후 정리'},
-      {k:'chip3',  label:'칩 3', type:'tx', def:'추가 비용'},
-      {k:'fname',  label:'사진 이름', type:'tx', def:'korpac_express.jpg'}
+      {k:'kicker', label:'윗줄', type:'tx', def:'남대문 나들이,'},
+      {k:'title',  label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'이런 곳들\n다녀왔어요'},
+      {k:'lead',   label:'설명', type:'ta', rows:2, def:'볼거리부터 먹거리까지\n가득했던 하루를 담았습니다.'},
+      {k:'chip1',  label:'칩 1', type:'tx', def:'샤워 꿀템'},
+      {k:'chip2',  label:'칩 2', type:'tx', def:'그릇 성지'},
+      {k:'chip3',  label:'칩 3', type:'tx', def:'군대용품'},
+      {k:'fname',  label:'사진 이름', type:'tx', def:'namdaemun.jpg'}
     ],
     html: c => retroShell(
       sl('kicker','hh s-kicker',c.f.kicker) + sl('title','hh s-title',c.f.title) +
@@ -902,11 +916,11 @@ Object.assign(LAYOUTS, {
     name:'창·단계', fam:'retro', role:'본문', bgN:1,
     thumb:[[0,0,100,100,'w'],[4,3,92,94,'d'],[4,3,92,6,'w'],[8,11,22,5,'d'],[8,19,62,12,'w'],[8,36,76,8,'w'],[8,49,76,7,'w'],[8,62,76,28,'w']],
     slots:[
-      {k:'pill',  label:'라벨', type:'tx', def:'방법 01'},
-      {k:'title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'가구는 벽에서\n10cm 띄우기'},
-      {k:'body1', label:'본문 (굵게)', type:'ta', rows:3, guide:'3줄 권장', def:'특히 옷장, 침대, 수납장처럼 벽면을 넓게 가리는\n가구는 외벽에서 최소 10cm 정도 띄워 주세요.'},
-      {k:'body2', label:'본문 (보통)', type:'ta', rows:3, guide:'3줄 권장', def:'벽과 가구 사이에 공간이 있어야 공기가 원활하게\n순환하고 습기가 고이는 것을 줄일 수 있습니다.'},
-      {k:'fname', label:'사진 이름', type:'tx', def:'tip_01.jpg'}
+      {k:'pill',  label:'라벨', type:'tx', def:'코스 01'},
+      {k:'title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'오래 쓰는\n샤워 꿀템 성지'},
+      {k:'body1', label:'본문 (굵게)', type:'ta', rows:3, guide:'3줄 권장', def:'코끼리 샤워타월 4,000원 · 문어 괄사 2,000원\n인기 만점 때비누 2,000원'},
+      {k:'body2', label:'본문 (보통)', type:'ta', rows:3, guide:'3줄 권장', def:'샤워 꿀템들이 가득해서 구경하는 재미가\n쏠쏠했어요!'},
+      {k:'fname', label:'사진 이름', type:'tx', def:'shower_items.jpg'}
     ],
     html: c => retroShell(
       sl('pill','rpill s-pill',c.f.pill) + sl('title','hh s-title',c.f.title) +
@@ -918,13 +932,13 @@ Object.assign(LAYOUTS, {
     name:'창·질문답변', fam:'retro', role:'본문', bgN:1,
     thumb:[[0,0,100,100,'w'],[4,3,92,94,'d'],[4,3,92,6,'w'],[8,11,20,5,'d'],[8,19,8,7,'a'],[20,19,58,9,'w'],[8,32,76,22,'w'],[8,58,8,7,'d'],[20,58,58,7,'w'],[8,70,76,20,'w']],
     slots:[
-      {k:'pill',  label:'라벨', type:'tx', def:'안전한 포장'},
-      {k:'ques',  label:'질문', type:'ta', rows:2, guide:'2줄 이내', def:'이사하다 물건이\n파손되면 어떡하죠?'},
-      {k:'ans',   label:'답변', type:'ta', rows:2, guide:'2줄 이내', def:'물품별 전용 포장재로 보호하고,\n사고 발생 시 책임 있게 대응합니다.'},
-      {k:'chk1',  label:'체크 1', type:'tx', def:'가구·가전 전용 보호 커버'},
-      {k:'chk2',  label:'체크 2', type:'tx', def:'그릇 에어캡 포장 및 바닥 보양'},
-      {k:'chk3',  label:'체크 3', type:'tx', def:'적재물 배상책임보험 가입'},
-      {k:'fname', label:'사진 이름', type:'tx', def:'packing_site.jpg'}
+      {k:'pill',  label:'라벨', type:'tx', def:'군대용품'},
+      {k:'ques',  label:'질문', type:'ta', rows:2, guide:'2줄 이내', def:'남자친구 눈이\n번쩍 뜨인 곳은?'},
+      {k:'ans',   label:'답변', type:'ta', rows:2, guide:'2줄 이내', def:'옛날 노란 깔깔이를 찾던 남자친구.\n군대용품이 가득한 곳에서 한참을 구경했어요!'},
+      {k:'chk1',  label:'체크 1', type:'tx', def:'옛날 노란 깔깔이'},
+      {k:'chk2',  label:'체크 2', type:'tx', def:'군복·군화·각종 보급품'},
+      {k:'chk3',  label:'체크 3', type:'tx', def:'구경만 해도 재밌는 곳'},
+      {k:'fname', label:'사진 이름', type:'tx', def:'army_shop.jpg'}
     ],
     html: c => retroShell(
       sl('pill','rpill s-pill',c.f.pill) +
@@ -938,17 +952,17 @@ Object.assign(LAYOUTS, {
     name:'창·수치', fam:'retro', role:'본문', bgN:0,
     thumb:[[0,0,100,100,'w'],[4,3,92,94,'d'],[4,3,92,6,'w'],[8,11,20,5,'d'],[8,19,62,12,'w'],[8,35,38,17,'w'],[50,35,38,17,'w'],[8,56,76,12,'w'],[8,72,76,16,'w']],
     slots:[
-      {k:'pill',  label:'라벨', type:'tx', def:'방법 02'},
-      {k:'title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'실내 온도와\n습도 관리하기'},
-      {k:'st1k',  label:'카드1 이름', type:'tx', def:'실내 온도'},
-      {k:'st1v',  label:'카드1 숫자', type:'tx', def:'20~22℃'},
-      {k:'st1n',  label:'카드1 설명', type:'tx', def:'정도로 유지'},
-      {k:'st2k',  label:'카드2 이름', type:'tx', def:'습도'},
-      {k:'st2v',  label:'카드2 숫자', type:'tx', def:'40~50%'},
-      {k:'st2n',  label:'카드2 설명', type:'tx', def:'목표로 관리'},
-      {k:'note',  label:'안내 문구', type:'ta', rows:2, def:'난방을 지나치게 높이면 차가운 벽면과\n실내 공기의 온도 차이가 커질 수 있습니다.'},
-      {k:'chk1',  label:'체크 1', type:'tx', def:'가습기 사용 시 습도계 함께 확인'},
-      {k:'chk2',  label:'체크 2', type:'tx', def:'실내 건조 시 제습기·환풍기 활용'}
+      {k:'pill',  label:'라벨', type:'tx', def:'코스 01'},
+      {k:'title', label:'제목', type:'ta', rows:2, guide:'2줄 이내', def:'샤워 꿀템\n가격 보실래요?'},
+      {k:'st1k',  label:'카드1 이름', type:'tx', def:'코끼리 샤워타월'},
+      {k:'st1v',  label:'카드1 숫자', type:'tx', def:'4,000원'},
+      {k:'st1n',  label:'카드1 설명', type:'tx', def:'오래 쓰는 인기템'},
+      {k:'st2k',  label:'카드2 이름', type:'tx', def:'문어 괄사'},
+      {k:'st2v',  label:'카드2 숫자', type:'tx', def:'2,000원'},
+      {k:'st2n',  label:'카드2 설명', type:'tx', def:'때비누도 2,000원'},
+      {k:'note',  label:'안내 문구', type:'ta', rows:2, def:'샤워 꿀템들이 가득해서\n구경하는 재미가 쏠쏠했어요!'},
+      {k:'chk1',  label:'체크 1', type:'tx', def:'코끼리 샤워타월 4,000원'},
+      {k:'chk2',  label:'체크 2', type:'tx', def:'인기 만점 때비누 2,000원'}
     ],
     html: c => retroShell(
       sl('pill','rpill s-pill',c.f.pill) + sl('title','hh s-title',c.f.title) +
@@ -960,19 +974,19 @@ Object.assign(LAYOUTS, {
     name:'창·마무리', fam:'retro', role:'마무리', bgN:1,
     thumb:[[0,0,100,100,'w'],[4,3,92,94,'d'],[4,3,92,6,'w'],[8,10,60,5,'w'],[8,17,50,5,'a'],[8,24,45,5,'w'],[8,32,76,20,'w'],[8,55,22,11,'w'],[32,55,22,11,'w'],[56,55,22,11,'w'],[8,70,60,5,'a'],[8,78,76,9,'a']],
     slots:[
-      {k:'t1', label:'제목 1줄', type:'tx', def:'이사의 시작부터 마무리까지,'},
-      {k:'t2', label:'제목 2줄 (강조색)', type:'tx', def:'코팩익스프레스가'},
-      {k:'t3', label:'제목 3줄', type:'tx', def:'책임지겠습니다.'},
-      {k:'s1v', label:'수치 1', type:'tx', def:'30년'},
-      {k:'s1n', label:'수치 1 설명', type:'tx', def:'현장 경력'},
-      {k:'s2v', label:'수치 2', type:'tx', def:'100%'},
-      {k:'s2n', label:'수치 2 설명', type:'tx', def:'직영팀 운영'},
-      {k:'s3v', label:'수치 3', type:'tx', def:'정식 허가'},
-      {k:'s3n', label:'수치 3 설명', type:'tx', def:'관허업체'},
-      {k:'lead', label:'설명', type:'ta', rows:2, def:'천안·아산·평택 포장이사\n포장부터 운반, 정리까지 함께합니다.'},
-      {k:'ctaLabel', label:'상담 라벨', type:'tx', def:'방문 견적 상담'},
-      {k:'ctaNo',    label:'연락처', type:'tx', def:'010-0000-0000'},
-      {k:'fname',    label:'사진 이름', type:'tx', def:'our_team.jpg'}
+      {k:'t1', label:'제목 1줄', type:'tx', def:'남대문 나들이의 마무리는'},
+      {k:'t2', label:'제목 2줄 (강조색)', type:'tx', def:'갈치조림'},
+      {k:'t3', label:'제목 3줄', type:'tx', def:'볼거리도 먹거리도 가득!'},
+      {k:'s1v', label:'수치 1', type:'tx', def:'샤워 꿀템'},
+      {k:'s1n', label:'수치 1 설명', type:'tx', def:'코끼리 타월'},
+      {k:'s2v', label:'수치 2', type:'tx', def:'현대기물'},
+      {k:'s2n', label:'수치 2 설명', type:'tx', def:'그릇 성지'},
+      {k:'s3v', label:'수치 3', type:'tx', def:'군대용품'},
+      {k:'s3n', label:'수치 3 설명', type:'tx', def:'깔깔이 찾기'},
+      {k:'lead', label:'설명', type:'ta', rows:2, def:'열심히 구경하고 나니 배가 고파져서 들어간 식당.\n갈치조림도 맛있고 밑반찬도 끝내줬어요!'},
+      {k:'ctaLabel', label:'상담 라벨', type:'tx', def:'남대문 나들이 끝'},
+      {k:'ctaNo',    label:'연락처', type:'tx', def:'갈치조림 💛'},
+      {k:'fname',    label:'사진 이름', type:'tx', def:'galchi_jorim.jpg'}
     ],
     html: c => retroShell(
       sl('t1','hh s-t1',c.f.t1) + sl('t2','hh s-t2',c.f.t2) + sl('t3','hh s-t3',c.f.t3) +
@@ -2186,6 +2200,14 @@ btnAll.addEventListener('click', () => run(S.cards.map((_, i) => i)));
 renderLayoutGrid();
 renderPalette();
 renderShots();
+
+/* 처음 열었을 때 비어 있지 않도록 예시 한 벌을 깔아 둔다.
+   표지 + 1~3장 + 마무리. 글자는 레이아웃마다 정해둔 기본값이 들어간다. */
+S.theme.headline  = document.getElementById('headline').value;
+S.theme.brandText = document.getElementById('brandText').value;
+['cover', 'bodyL', 'bodyM', 'qa', 'end'].forEach(k => S.cards.push(newCard(k)));
+S.sel = 0;
+
 applyTheme();
 renderAll();
 window.addEventListener('load', () => { getFaceList().catch(() => {}); });
