@@ -1892,6 +1892,16 @@ function note(boxId, kind, html) {
    그 목록을 사용자에게 그대로 보여 준다.
    ══════════════════════════════════════════════════════════════════ */
 const STR = { type: 'STRING' };
+
+/* 응답 스키마는 레이아웃에서 바로 만든다.
+   손으로 적어 두면 템플릿을 늘릴 때마다 빠뜨리게 된다.
+   실제로 창 계열 칸(pill·ques·ans·chk…)이 빠져 있어서
+   AI 가 창 템플릿을 고르면 글자가 통째로 비어 나왔다. */
+const ALL_SLOT_KEYS = (() => {
+  const set = new Set();
+  Object.keys(LAYOUTS).forEach(k => LAYOUTS[k].slots.forEach(s => set.add(s.k)));
+  return [...set];
+})();
 const CARD_SCHEMA = {
   type: 'OBJECT',
   properties: {
@@ -1899,13 +1909,11 @@ const CARD_SCHEMA = {
       type: 'ARRAY',
       items: {
         type: 'OBJECT',
-        properties: {
-          layout: { type: 'STRING', enum: LAYOUT_KEYS },
-          title: STR, cap: STR, body: STR, q: STR, badge: STR, msg: STR,
-          lead: STR, out: STR, key: STR,
-          p1: STR, p2: STR, p3: STR, lab1: STR, lab2: STR, lab3: STR,
-          imageIndex: { type: 'INTEGER' }
-        },
+        properties: Object.assign(
+          { layout: { type: 'STRING', enum: LAYOUT_KEYS } },
+          ...ALL_SLOT_KEYS.map(k => ({ [k]: STR })),
+          { imageIndex: { type: 'INTEGER' } }
+        ),
         required: ['layout']
       }
     },
@@ -1914,10 +1922,82 @@ const CARD_SCHEMA = {
   required: ['cards', 'missing']
 };
 
-const LAYOUT_BRIEF = Object.keys(LAYOUTS).map(k =>
-  k + '=' + LAYOUTS[k].slots.map(x => x.k).join(',')).join(' | ');
+/* ══════════════════════════════════════════════════════════════════
+   칸마다 글자가 몇 자 들어가는지 실제로 재서 AI 에게 알려 준다.
 
-function buildAnalysisPrompt(n, industry, purpose, script, shotCount) {
+   숫자를 코드에 적어 두면 디자인을 고칠 때마다 어긋나고, 글꼴이
+   바뀌어도 모른다. 그래서 쓸 때 한 번 직접 잰다.
+   한글 20자의 실제 폭으로 한 자 폭을 구하고, 칸 안쪽 폭으로 나눈다.
+   ══════════════════════════════════════════════════════════════════ */
+let LIMITS = null;
+async function measureLimits() {
+  if (LIMITS) return LIMITS;
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+
+  const stage = document.getElementById('export-stage');
+  const ruler = document.createElement('span');
+  ruler.style.cssText = 'position:fixed;left:-99999px;top:0;visibility:hidden;white-space:nowrap';
+  document.body.appendChild(ruler);
+  const out = {};
+
+  Object.keys(LAYOUTS).forEach(key => {
+    const c = newCard(key);
+    const el = buildCardEl(c, 'lim');
+    stage.innerHTML = ''; stage.appendChild(el);
+    const cardBox = el.getBoundingClientRect();
+    const cont = el.querySelector('.cont');
+    const right = cont ? cont.getBoundingClientRect().right - 12 : cardBox.right - 100;
+    const m = {};
+
+    el.querySelectorAll('[data-k]').forEach(t => {
+      const cs = getComputedStyle(t);
+      const fsz = parseFloat(cs.fontSize);
+      const lh = parseFloat(cs.lineHeight) || fsz * 1.2;
+      const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+      const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+
+      /* 글자를 넣었을 때 폭이 늘어나는 칸인지 확인한다 */
+      const keep = t.innerHTML;
+      t.textContent = '가';            const w1 = t.getBoundingClientRect().width;
+      t.textContent = '가'.repeat(30); const w2 = t.getBoundingClientRect().width;
+      const grows = w2 > w1 + 2;
+      t.textContent = '가';            const left = t.getBoundingClientRect().left;
+      t.innerHTML = keep;
+
+      ['fontFamily','fontSize','fontWeight','fontStyle','letterSpacing']
+        .forEach(pp => ruler.style[pp] = cs[pp]);
+      ruler.textContent = '가'.repeat(20);
+      const adv = ruler.getBoundingClientRect().width / 20 || fsz;
+
+      const room = grows ? Math.max(20, right - left - padX) : (t.clientWidth - padX);
+      let ko = Math.floor(room / adv);
+      /* 알약·칩은 자리가 남아도 길면 디자인이 무너진다 */
+      if (grows) ko = Math.min(ko, 10);
+      m[t.dataset.k] = {
+        ko: Math.max(1, ko),
+        lines: grows ? 1 : Math.max(1, Math.floor((t.clientHeight - padY + 2) / lh))
+      };
+    });
+    out[key] = m;
+  });
+
+  stage.innerHTML = ''; ruler.remove();
+  LIMITS = out;
+  return out;
+}
+
+/* 'cover: title 9자x3줄, cap 23자x1줄 | ...' 형태로 압축해 프롬프트에 싣는다 */
+function layoutBrief(lim) {
+  return Object.keys(LAYOUTS).map(k => {
+    const parts = LAYOUTS[k].slots.map(s => {
+      const L = (lim[k] || {})[s.k];
+      return L ? s.k + ' ' + L.ko + 'x' + L.lines : s.k;
+    });
+    return k + ': ' + parts.join(', ');
+  }).join('\n');
+}
+
+function buildAnalysisPrompt(n, industry, purpose, script, shotCount, brief) {
   return [
 '한국어 카드뉴스 편집자로서 아래 원고를 ' + n + '장으로 나눠 JSON 으로만 답하세요.',
 '',
@@ -1925,15 +2005,18 @@ function buildAnalysisPrompt(n, industry, purpose, script, shotCount) {
 '필요한데 원고에 없으면 그 칸을 빈 문자열로 두고, 무엇이 필요한지 missing 에 한 문장으로 적으세요.',
 '과장된 효능·보장 표현을 새로 만들지 마세요.',
 '',
-'[길이] title 2~3줄(한 줄 12자 안팎) · body 3줄 안팎(한 줄 20자 안팎) · cap/q/msg 1~2줄 ·',
-'p1~p3, lab1~lab3, chip1~3, chk1~3, badge, pill 은 10자 이내. 줄바꿈은 \n 으로.',
+'[길이] 아래 표의 "칸 N자xM줄" 은 그 칸에 한글 N자까지, M줄까지 들어간다는 뜻입니다.',
+'한 줄이 N자를 넘거나 줄이 M줄을 넘으면 글자가 작아져 장마다 크기가 달라 보입니다.',
+'각 줄을 N자 이하로 쓰고, 필요하면 \n 으로 줄을 나누되 M줄을 넘기지 마세요.',
+'숫자와 영문은 한글보다 좁아 약 1.8배 더 들어갑니다.',
+'fname 은 사진 파일 이름 자리입니다. cafe_interior.jpg 처럼 짧은 영문으로 쓰세요.',
 '',
 '[구성] 첫 장은 cover·split3·rCover·rCoverL 중 하나, 마지막 장은 end 또는 rEnd.',
 '창 계열(r 로 시작)과 사진 계열을 섞지 말고 한쪽으로 통일하세요.',
 '한 카드에는 그 모양이 쓰는 칸만 채우고 나머지는 비우세요.',
 '',
-'[모양=칸]',
-LAYOUT_BRIEF,
+'[모양별 칸과 글자 한도]',
+brief,
 '',
 shotCount
   ? '[사진] ' + shotCount + '장(0~' + (shotCount - 1) + '번). 어울리는 카드의 imageIndex 에 번호를, 없으면 -1. 중복 금지.'
@@ -2015,7 +2098,9 @@ async function buildFromScript(btn) {
   const tick = setInterval(() => note('buildNote', 'warn',
     'AI가 원고를 읽고 있습니다… ' + Math.round((Date.now() - t0) / 1000) + '초'), 1000);
   try {
-    const parts = [{ text: buildAnalysisPrompt(n, industry, S.purpose, script || '(원고 없음. 사진만 보고 구성하세요.)', S.shots.length) }];
+    const lim = await measureLimits();
+    const parts = [{ text: buildAnalysisPrompt(n, industry, S.purpose,
+      script || '(원고 없음. 사진만 보고 구성하세요.)', S.shots.length, layoutBrief(lim)) }];
     const small = await Promise.all(S.shots.map(u => shrink(u, 768)));
     dataUriParts(small).forEach(p => parts.push(p));
 
