@@ -9,18 +9,37 @@
  *
  * 관리자가 넣을 환경변수 (Vercel → Settings → Environment Variables)
  *   GEMINI_API_KEY      (필수)  발급받은 키
- *   GEMINI_TEXT_MODEL   (선택)  기본값 gemini-2.5-flash
+ *   GEMINI_TEXT_MODEL   (선택)  기본값은 아래 DEFAULT_TEXT_MODEL
  *
  * 요청:  POST /api/gemini   { kind: "analyze", body: { ... } }
  * 응답:  Gemini 응답을 그대로 전달 (상태 코드 포함)
  *
  * 모델 이름은 서버가 정한다. 브라우저가 보낸 값은 쓰지 않는다.
+ *
+ * 모델이 바뀔 때
+ *   구글은 옛 모델을 닫으면서 "models/XXX 를 쓰라"고 알려 준다.
+ *   그 경우 알려준 모델로 한 번만 다시 시도한다. 모델명이 바뀌어도
+ *   코드를 고치지 않고 계속 돌아가게 하려는 것이다.
  */
 
+const DEFAULT_TEXT_MODEL = 'gemini-3.8-flash';
 const MODELS = {
-  analyze: () => process.env.GEMINI_TEXT_MODEL || 'gemini-2.5-flash'
+  analyze: () => process.env.GEMINI_TEXT_MODEL || DEFAULT_TEXT_MODEL
 };
+const MODEL_RE = /^[A-Za-z0-9._-]{1,64}$/;
 const MAX_BODY = 4 * 1024 * 1024; // Vercel 요청 본문 한도(4.5MB)보다 조금 작게
+
+function callUpstream(model, key, forward) {
+  return fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/'
+      + encodeURIComponent(model) + ':generateContent',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      body: forward
+    }
+  );
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -47,6 +66,10 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: { message: '알 수 없는 요청입니다.' } });
   }
   const model = pickModel();
+  if (!MODEL_RE.test(model)) {
+    return res.status(500).json({ error: { message:
+      'GEMINI_TEXT_MODEL 값이 올바르지 않습니다: ' + model } });
+  }
 
   const { body } = payload;
   if (!body || typeof body !== 'object') {
@@ -60,19 +83,28 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const upstream = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/'
-        + encodeURIComponent(model) + ':generateContent',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-        body: forward
+    let upstream = await callUpstream(model, key, forward);
+    let text = await upstream.text();
+    let used = model;
+
+    /* "models/XXX 를 쓰라" 는 안내가 오면 그 모델로 한 번만 다시 시도 */
+    if (!upstream.ok) {
+      const hint = /models\/([A-Za-z0-9._-]+)/g;
+      const names = [];
+      let m;
+      while ((m = hint.exec(text))) if (m[1] !== model && !names.includes(m[1])) names.push(m[1]);
+      const next = names[names.length - 1];   // 안내문에서 권하는 쪽은 뒤에 나온다
+      if (next && MODEL_RE.test(next)) {
+        const retry = await callUpstream(next, key, forward);
+        const retryText = await retry.text();
+        if (retry.ok) { upstream = retry; text = retryText; used = next; }
       }
-    );
-    const text = await upstream.text();
+    }
+
     res.status(upstream.status);
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-Model-Used', used);
     return res.send(text);
   } catch (e) {
     return res.status(502).json({ error: { message:
